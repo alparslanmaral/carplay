@@ -1,0 +1,297 @@
+.np {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem 0.5rem;
+  overflow: hidden;
+  border-radius: var(--radius);
+  isolation: isolate;
+}
+.np--empty {
+  display: block;
+}
+.np[data-layout='landscape'] {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+}
+.np[data-layout='portrait'] {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.np[data-bg='gradient'] {
+  background:
+    radial-gradient(120% 90% at 15% 0%, color-mix(in srgb, var(--np-tint) 55%, transparent), transparent 70%),
+    radial-gradient(
+      100% 80% at 100% 100%,
+      color-mix(in srgb, var(--np-tint) 30%, transparent),
+      transparent 70%
+    );
+}
+.np__bgart {
+  position: absolute;
+  inset: -25%;
+  width: 150%;
+  height: 150%;
+  object-fit: cover;
+  filter: blur(64px) saturate(1.6) brightness(0.6);
+  opacity: 0.85;
+  z-index: -1;
+}
+:root[data-theme='light'] .np__bgart {
+  filter: blur(64px) saturate(1.4) brightness(1.15);
+  opacity: 0.55;
+}
+
+.np__art {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+.art {
+  --size: min(100cqw, 100cqh);
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  place-items: center;
+  position: relative;
+  color: var(--text-faint);
+}
+.art__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+.art--rounded .art__img {
+  border-radius: calc(var(--radius) * 1.1);
+}
+.art--square .art__img {
+  border-radius: 4px;
+}
+.art--rounded,
+.art--square {
+  background: var(--fill);
+  border-radius: calc(var(--radius) * 1.1);
+}
+.art__disc {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 30%,
+      rgba(255, 255, 255, 0.05) 30.5% 31%,
+      transparent 31.5%
+    ),
+    repeating-radial-gradient(circle at 50% 50%, #0d0d10 0 2px, #17171c 3px 4px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+}
+.art--vinyl.is-playing .art__disc {
+  animation: spin 7s linear infinite;
+}
+.art__label {
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.np__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 0;
+}
+.np__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+.np__badges a.chip {
+  text-decoration: none;
+}
+.np__title {
+  font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.np__artist {
+  font-size: clamp(1.0625rem, 1.2vw + 0.75rem, 1.5rem);
+  color: var(--text);
+  opacity: 0.85;
+  font-weight: 600;
+}
+.np__album {
+  font-size: 1rem;
+}
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (orientation: landscape) and (max-height: 460px) {
+  .np__album,
+  .np__badges .chip:nth-child(n + 3) {
+    display: none;
+  }
+  .np__title {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+}
+
+/* scrubber */
+.scrub {
+  width: 100%;
+}
+.scrub__track {
+  position: relative;
+  height: var(--tt);
+  display: flex;
+  align-items: center;
+  touch-action: none;
+  cursor: pointer;
+  outline-offset: -4px;
+}
+.scrub__track[aria-disabled='true'] {
+  opacity: 0.5;
+}
+.scrub__rail {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--fill-strong);
+}
+.scrub__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--text);
+}
+.scrub__thumb {
+  position: absolute;
+  top: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.75rem 0 0 -0.75rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  transition: transform calc(var(--dur) * 0.5) var(--ease);
+}
+.scrub__track[data-dragging='true'] .scrub__thumb {
+  transform: scale(1.3);
+}
+.scrub__times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -0.75rem;
+  font-size: calc(0.8125rem * var(--text-scale));
+  color: var(--text-dim);
+}
+
+/* transport */
+.np__transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.np__play {
+  width: calc(var(--tt) * 1.2);
+  height: calc(var(--tt) * 1.2);
+}
+.np__seeklabel {
+  font-size: calc(0.9375rem * var(--text-scale));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.np__extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.np__volume {
+  flex: 1 1 7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.np__hint {
+  flex: 1 1 8rem;
+  font-size: calc(0.8125rem * var(--text-scale));
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+@media (orientation: landscape) and (max-height: 460px) {
+  .np__hint {
+    display: none;
+  }
+  .np__panel {
+    gap: 0;
+  }
+  .np__badges {
+    margin-bottom: 0.125rem;
+  }
+  .np__badges .chip {
+    padding: 0.125rem 0.5rem;
+  }
+  .scrub__times {
+    margin-top: -1rem;
+  }
+  .np__volume .btn {
+    display: none;
+  }
+  .np__volume {
+    flex-basis: 6rem;
+    padding: 0 0.5rem;
+  }
+  .np__play {
+    width: calc(var(--tt) * 1.1);
+    height: calc(var(--tt) * 1.1);
+  }
+}
+
+/* notices (connection state) */
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: calc(var(--radius) * 0.85);
+  background: color-mix(in srgb, var(--warn) 18%, var(--glass-strong));
+  border: 1px solid color-mix(in srgb, var(--warn) 50%, transparent);
+}
+.notice[data-tone='bad'] {
+  background: color-mix(in srgb, var(--danger) 18%, var(--glass-strong));
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+}
+.notice__text {
+  flex: 1;
+  min-width: 0;
+}
+.notice__title {
+  font-weight: 700;
+}
+.notice__body {
+  font-size: calc(0.875rem * var(--text-scale));
+  color: var(--text-dim);
+}

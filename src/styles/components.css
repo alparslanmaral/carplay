@@ -224,10 +224,12 @@ button.row:active {
   min-width: 0;
 }
 .row__title {
+  display: block;
   font-size: calc(1.0625rem * var(--text-scale));
   font-weight: 650;
 }
 .row__sub {
+  display: block;
   font-size: calc(0.875rem * var(--text-scale));
   color: var(--text-dim);
 }

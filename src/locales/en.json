@@ -61,7 +61,56 @@
   "nowplaying": {
     "open": "Open Now Playing",
     "play": "Play",
-    "pause": "Pause"
+    "pause": "Pause",
+    "previous": "Previous",
+    "next": "Next",
+    "back": "Back {{s}} seconds",
+    "forward": "Forward {{s}} seconds",
+    "shuffle": "Shuffle",
+    "repeat": "Repeat",
+    "like": "Save to library",
+    "unlike": "Remove from library",
+    "upNext": "Up next",
+    "queueEmpty": "The queue is empty.",
+    "nothing": "Nothing playing",
+    "nothingHint": "Start music in Spotify or YouTube, or turn on the demo player in Settings > Media.",
+    "volume": "Volume",
+    "volumeUp": "Volume up",
+    "volumeDown": "Volume down",
+    "volumeExternal": "Volume: use the car or iPhone volume buttons",
+    "openInSpotify": "Open in Spotify"
+  },
+  "dashboard": {
+    "enableLocation": "Enable location",
+    "weatherNoLocation": "Turn on location to see the weather.",
+    "weatherError": "Weather unavailable right now.",
+    "noRecents": "No recent destinations yet.",
+    "goHome": "Home",
+    "goWork": "Work",
+    "setFavoritesHint": "Save Home and Work in Maps to navigate in one tap."
+  },
+  "widgets": {
+    "map": "Map",
+    "nowplaying": "Now Playing",
+    "speed": "Speed",
+    "clock": "Clock and date",
+    "weather": "Weather",
+    "recents": "Recent destinations",
+    "actions": "Quick actions"
+  },
+  "weather": {
+    "clear": "Clear",
+    "partly": "Partly cloudy",
+    "overcast": "Overcast",
+    "fog": "Fog",
+    "drizzle": "Drizzle",
+    "rain": "Rain",
+    "snow": "Snow",
+    "storm": "Thunderstorm",
+    "unknown": "Unknown"
+  },
+  "maps": {
+    "navigateIn": "Navigate in…"
   },
   "placeholder": {
     "title": "Coming in a later milestone",

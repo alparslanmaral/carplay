@@ -7,6 +7,8 @@ import './styles/base.css';
 import './styles/chassis.css';
 import './styles/components.css';
 import './styles/home.css';
+import './styles/dashboard.css';
+import './styles/nowplaying.css';
 
 bootstrapApp();
 

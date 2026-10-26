@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from 'react';
+import { Suspense, lazy, type ReactNode } from 'react';
 import type { Entry } from './core/router';
 import { Chassis } from './ui/Chassis';
 import { ScreenHost } from './ui/ScreenHost';
@@ -9,12 +9,20 @@ import { Placeholder } from './ui/screens/Placeholder';
 import { useThemeEngine } from './ui/hooks/useThemeEngine';
 import { useMediaState } from './services/media/manager';
 import { NightDim } from './ui/NightDim';
+import { NavChooser } from './ui/components/NavChooser';
 import { useAppEffects } from './ui/hooks/useAppEffects';
+
+const Dashboard = lazy(() => import('./ui/screens/Dashboard'));
+const NowPlaying = lazy(() => import('./ui/screens/NowPlaying'));
 
 function renderEntry(entry: Entry): ReactNode {
   switch (entry.screen) {
     case 'home':
       return <Home />;
+    case 'dashboard':
+      return <Dashboard />;
+    case 'nowplaying':
+      return <NowPlaying />;
     default:
       return <Placeholder screen={entry.screen} />;
   }
@@ -41,6 +49,7 @@ export default function App() {
       <NightDim />
       <DialogHost />
       <PassengerPrompt />
+      <NavChooser />
       <Toasts />
     </>
   );

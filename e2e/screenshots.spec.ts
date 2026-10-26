@@ -1,7 +1,7 @@
 import { test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { LANDSCAPE, PORTRAIT, seed, waitForApp } from './helpers';
+import { LANDSCAPE, PORTRAIT, mockExternal, seed, waitForApp } from './helpers';
 
 /**
  * Screenshots at 390x844 (portrait) and 844x390 (landscape) for every scene.
@@ -17,12 +17,40 @@ interface Scene {
   act?: (page: Page) => Promise<void>;
 }
 
+const places = [
+  { id: 'r1', name: 'Kadıköy Pier', address: 'Kadıköy, Istanbul', lat: 40.9925, lng: 29.0245, ts: 1 },
+  { id: 'r2', name: 'Istanbul Airport', address: 'Arnavutköy, Istanbul', lat: 41.2753, lng: 28.7519, ts: 2 },
+  { id: 'r3', name: 'Bebek Park', address: 'Beşiktaş, Istanbul', lat: 41.0773, lng: 29.0436, ts: 3 },
+];
+const favorites = [
+  { id: 'f1', name: 'Home', lat: 41.0422, lng: 29.0083, kind: 'home' },
+  { id: 'f2', name: 'Work', lat: 41.0766, lng: 29.0174, kind: 'work' },
+];
+
 const scenes: Scene[] = [
   { name: 'home', url: '/?demo=1' },
   {
     name: 'home-light-right-rail',
     url: '/?demo=1',
     settings: { theme: 'light', railPosition: 'right', accent: '#ff8a3d' },
+  },
+  {
+    name: 'dashboard',
+    url: '/?demo=1&screen=dashboard',
+    settings: { recents: places, favorites },
+    act: async (page) => {
+      await page.waitForSelector('.dash');
+    },
+  },
+  {
+    name: 'nowplaying',
+    url: '/?demo=1&screen=nowplaying',
+    settings: { defaultSource: 'last', lastSource: 'demo' },
+  },
+  {
+    name: 'nowplaying-vinyl-gradient',
+    url: '/?demo=1&screen=nowplaying',
+    settings: { artworkShape: 'vinyl', nowPlayingBg: 'gradient', accent: '#b05cff', lastSource: 'demo' },
   },
 ];
 
@@ -35,6 +63,7 @@ for (const scene of scenes) {
   for (const size of SIZES) {
     test(`${scene.name} ${size.tag}`, async ({ page }) => {
       await seed(page, scene.settings);
+      await mockExternal(page);
       await page.setViewportSize(size.viewport);
       await page.goto(scene.url);
       await waitForApp(page);
