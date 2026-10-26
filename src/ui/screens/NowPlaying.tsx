@@ -7,6 +7,7 @@ import { useActiveController, useMedia, useMediaState } from '../../services/med
 import type { RepeatMode } from '../../services/media/types';
 import { Artwork } from '../components/Artwork';
 import { Icon } from '../components/Icon';
+import { MediaNotice, useNoticeVisible } from '../components/MediaNotice';
 import { Sheet } from '../components/Overlays';
 import { Scrubber } from '../components/Scrubber';
 import { useArtColor } from '../hooks/useArtColor';
@@ -104,10 +105,13 @@ export default function NowPlaying() {
   const [queueOpen, setQueueOpen] = useState(false);
   const artColor = useArtColor(bg === 'gradient' ? track?.artworkUrl : null);
 
+  const noticeVisible = useNoticeVisible();
+
   if (!source || !controller || !track) {
     return (
       <section className="np np--empty" aria-label={t('apps.nowplaying')}>
-        <div className="empty">
+        <MediaNotice />
+        <div className="empty" hidden={noticeVisible}>
           <Icon name="music" size="3.5rem" />
           <strong>{t('nowplaying.nothing')}</strong>
           <span>{t('nowplaying.nothingHint')}</span>
@@ -131,6 +135,9 @@ export default function NowPlaying() {
   return (
     <section className="np" data-layout={layout} data-bg={bg} style={style} aria-label={t('apps.nowplaying')}>
       {bg === 'art' && track.artworkUrl && <img className="np__bgart" src={track.artworkUrl} alt="" />}
+      <div className="np__notice">
+        <MediaNotice />
+      </div>
       <div className="np__art">
         <Artwork url={track.artworkUrl} playing={playing} source={source} />
       </div>

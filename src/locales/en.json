@@ -112,6 +112,37 @@
   "maps": {
     "navigateIn": "Navigate in…"
   },
+  "spotify": {
+    "library": "Your library",
+    "tabs": {
+      "playlists": "Playlists",
+      "liked": "Liked Songs",
+      "recent": "Recently Played",
+      "albums": "Albums"
+    },
+    "shufflePlay": "Shuffle play",
+    "trackCount": "{{n}} tracks",
+    "emptyPlaylists": "No playlists found.",
+    "emptyLiked": "No liked songs yet.",
+    "emptyRecent": "Nothing played recently.",
+    "emptyAlbums": "No saved albums.",
+    "attribution": "Music and artwork from Spotify. DriveDeck is a remote control for the Spotify app and is not affiliated with Spotify.",
+    "connect": "Connect Spotify",
+    "connectTitle": "Connect Spotify",
+    "connectBody": "Sign in once so DriveDeck can control the Spotify app. Playback stays in Spotify, so your steering-wheel buttons keep working.",
+    "notConfiguredTitle": "Spotify is not set up yet",
+    "notConfiguredBody": "Add your Spotify Client ID in Settings > Accounts (see the README for how to create one).",
+    "openSettings": "Open settings",
+    "openAppTitle": "Open Spotify",
+    "openAppBody": "Spotify has to be running on this iPhone. Open it, start any song, then come back. DriveDeck takes over automatically.",
+    "openAppIdle": "Spotify is open but idle. Start a song in Spotify and DriveDeck will pick it up.",
+    "openApp": "Open Spotify",
+    "premiumTitle": "Spotify Premium required",
+    "premiumBody": "Spotify only allows remote control for Premium accounts. You can still use Spotify itself and the steering-wheel buttons.",
+    "rateLimitedTitle": "Spotify is busy",
+    "rateLimitedBody": "Too many requests. DriveDeck pauses for a moment and retries.",
+    "errorTitle": "Spotify problem"
+  },
   "placeholder": {
     "title": "Coming in a later milestone",
     "body": "This screen is built in a later milestone of the plan (see PLAN.md)."

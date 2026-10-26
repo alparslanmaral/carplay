@@ -1,5 +1,5 @@
 import { decideStartRoute, readHandoff } from './startRoute';
-import { readPersistedStack, restoreStack, startRouterPersistence, useRouter } from './router';
+import { isScreenId, readPersistedStack, restoreStack, startRouterPersistence, useRouter } from './router';
 import { getSettings, useSettings } from './settings';
 import { startDrivingMonitor } from './driving';
 import { setupI18n } from './i18n';
@@ -10,7 +10,11 @@ import {
   registerController,
   availableSources,
   setActiveSource,
+  useMedia,
 } from '../services/media/manager';
+import { handleRedirectCallback, initSpotifyAuthState, useSpotifyAuth } from '../services/spotify/auth';
+import { spotifyController } from '../services/spotify/controller';
+import { toast } from './toast';
 import { log } from './logger';
 
 /**
@@ -24,6 +28,8 @@ export function bootstrapApp(): void {
   if (params.get('demo') === '1') useSettings.getState().set('demoPlayer', true);
 
   registerController(new DemoController());
+  registerController(spotifyController);
+  initSpotifyAuthState();
 
   const s = getSettings();
   const saved = readPersistedStack();
@@ -38,7 +44,8 @@ export function bootstrapApp(): void {
   else if (route.type === 'onboarding') useRouter.getState().reset('onboarding');
   else if (route.type === 'screen') useRouter.getState().reset(route.screen);
   const screenParam = params.get('screen');
-  if (screenParam === 'dashboard' || screenParam === 'nowplaying') useRouter.getState().reset(screenParam);
+  // ?screen=<id> opens a screen directly (used by the screenshot/e2e tooling and handy for bookmarks).
+  if (isScreenId(screenParam) && screenParam !== 'onboarding') useRouter.getState().reset(screenParam);
 
   startRouterPersistence();
   startDrivingMonitor();
@@ -46,4 +53,16 @@ export function bootstrapApp(): void {
 
   const initial = pickInitialSource(s.defaultSource, s.lastSource, availableSources());
   if (initial) void setActiveSource(initial).catch((e) => log.warn('boot', 'activating source failed', e));
+
+  // Finish a Spotify sign-in redirect (?code=&state=). The controller was activated before the token existed,
+  // so it is activated again once the exchange succeeds.
+  void handleRedirectCallback().then(async (result) => {
+    if (result === 'connected') {
+      toast('Spotify connected', 'ok');
+      if (useMedia.getState().active === 'spotify') await spotifyController.activate();
+      else await setActiveSource('spotify');
+    } else if (result === 'error') {
+      toast(useSpotifyAuth.getState().error ?? 'Spotify sign-in failed', 'bad', 6000);
+    }
+  });
 }

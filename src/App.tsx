@@ -14,6 +14,7 @@ import { useAppEffects } from './ui/hooks/useAppEffects';
 
 const Dashboard = lazy(() => import('./ui/screens/Dashboard'));
 const NowPlaying = lazy(() => import('./ui/screens/NowPlaying'));
+const SpotifyScreen = lazy(() => import('./ui/screens/SpotifyScreen'));
 
 function renderEntry(entry: Entry): ReactNode {
   switch (entry.screen) {
@@ -23,6 +24,8 @@ function renderEntry(entry: Entry): ReactNode {
       return <Dashboard />;
     case 'nowplaying':
       return <NowPlaying />;
+    case 'spotify':
+      return <SpotifyScreen />;
     default:
       return <Placeholder screen={entry.screen} />;
   }
