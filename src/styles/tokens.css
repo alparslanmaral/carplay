@@ -1,0 +1,76 @@
+/* Design tokens. Dynamic values (--accent, --scale, --radius, --blur, --touch, --dur ...) are written to <html>
+   by core/theme.ts; the defaults here only cover the first paint. */
+:root {
+  --accent: #4c8dff;
+  --on-accent: #ffffff;
+  --scale: 1;
+  --text-scale: 1;
+  --font-weight: 500;
+  --radius: 22px;
+  --blur: 24px;
+  --touch: 64px;
+  --icon-size: 72px;
+  --rail-w: 112px;
+  --dur: 240ms;
+  --wallpaper-dim: 0.35;
+  --wallpaper-blur: 0px;
+  --night-dim: 0;
+
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+
+  /* Physical touch target: never below the configured size, grows with UI scale. */
+  --tt: max(var(--touch), calc(var(--touch) * var(--scale)));
+
+  --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --gap: 0.75rem;
+  --ok: #3ddc84;
+  --warn: #ffc83d;
+  --danger: #ff5c5c;
+  --font:
+    -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:root,
+:root[data-theme='dark'] {
+  --bg: #0b0d12;
+  --text: #f4f6fb;
+  --text-dim: rgba(244, 246, 251, 0.64);
+  --text-faint: rgba(244, 246, 251, 0.4);
+  --glass: rgba(26, 30, 42, 0.58);
+  --glass-strong: rgba(22, 26, 38, 0.86);
+  --glass-hover: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --fill: rgba(255, 255, 255, 0.1);
+  --fill-strong: rgba(255, 255, 255, 0.18);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+  --scrim: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme='light'] {
+  --bg: #eef0f5;
+  --text: #11141b;
+  --text-dim: rgba(17, 20, 27, 0.64);
+  --text-faint: rgba(17, 20, 27, 0.4);
+  --glass: rgba(255, 255, 255, 0.64);
+  --glass-strong: rgba(255, 255, 255, 0.9);
+  --glass-hover: rgba(0, 0, 0, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --hairline: rgba(0, 0, 0, 0.08);
+  --fill: rgba(0, 0, 0, 0.07);
+  --fill-strong: rgba(0, 0, 0, 0.14);
+  --shadow: 0 12px 28px rgba(30, 40, 70, 0.16);
+  --scrim: rgba(20, 24, 35, 0.4);
+  --ok: #18a957;
+  --warn: #c98a00;
+  --danger: #d93636;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur: 0ms !important;
+  }
+}

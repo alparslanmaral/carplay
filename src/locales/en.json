@@ -1,0 +1,70 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "done": "Done",
+    "close": "Close",
+    "save": "Save",
+    "remove": "Remove",
+    "retry": "Retry",
+    "loading": "Loading…",
+    "on": "On",
+    "off": "Off",
+    "search": "Search",
+    "open": "Open",
+    "reset": "Reset",
+    "copy": "Copy",
+    "paste": "Paste",
+    "none": "None",
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "apps": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "maps": "Maps",
+    "spotify": "Spotify",
+    "youtube": "YouTube",
+    "nowplaying": "Now Playing",
+    "destinations": "Destinations",
+    "settings": "Settings"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "locked": "Driving lock active",
+    "gps": {
+      "idle": "GPS off",
+      "starting": "GPS starting…",
+      "watching": "GPS active",
+      "denied": "Location permission denied",
+      "unavailable": "GPS unavailable",
+      "error": "GPS error"
+    }
+  },
+  "home": {
+    "edit": "Edit",
+    "hide": "Hide",
+    "show": "Show",
+    "pages": "Home pages",
+    "page": "Page {{n}}"
+  },
+  "driving": {
+    "title": "Parked? Passenger mode",
+    "body": "Typing is locked while the car is moving. If you are a passenger and not driving, you can unlock it for this session.",
+    "bodyNoOverride": "Typing is locked while the car is moving. Park the car to use the keyboard.",
+    "stayLocked": "Stay locked",
+    "confirmPassenger": "I'm a passenger"
+  },
+  "nowplaying": {
+    "open": "Open Now Playing",
+    "play": "Play",
+    "pause": "Pause"
+  },
+  "placeholder": {
+    "title": "Coming in a later milestone",
+    "body": "This screen is built in a later milestone of the plan (see PLAN.md)."
+  }
+}
