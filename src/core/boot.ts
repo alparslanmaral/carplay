@@ -14,6 +14,8 @@ import {
 } from '../services/media/manager';
 import { handleRedirectCallback, initSpotifyAuthState, useSpotifyAuth } from '../services/spotify/auth';
 import { spotifyController } from '../services/spotify/controller';
+import { initYouTubeAuthState } from '../services/youtube/auth';
+import { youtubeController } from '../services/youtube/controller';
 import { toast } from './toast';
 import { log } from './logger';
 
@@ -29,7 +31,9 @@ export function bootstrapApp(): void {
 
   registerController(new DemoController());
   registerController(spotifyController);
+  registerController(youtubeController);
   initSpotifyAuthState();
+  initYouTubeAuthState();
 
   const s = getSettings();
   const saved = readPersistedStack();

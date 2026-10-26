@@ -96,6 +96,22 @@ describe('media session ownership', () => {
     expect(mediaSessionDiagnostics().attached).toBe('youtube');
   });
 
+  it('takes the keys only once a video is loaded, and gives them back when it is closed', () => {
+    const { session, handlers } = fakeSession();
+    _setSessionForTests(session);
+    const yt = fakeController('youtube', true);
+    yt.state$.setState({ track: null });
+    syncMediaSession(yt);
+    expect(session.setActionHandler).not.toHaveBeenCalled();
+    yt.state$.setState({ track: { id: 'v', title: 'Clip', artist: 'Chan', durationMs: 1000 } });
+    expect(handlers.get('play')).toBeTypeOf('function');
+    expect(session.metadata?.title).toBe('Clip');
+    yt.state$.setState({ track: null });
+    expect(handlers.get('play')).toBeNull();
+    expect(session.metadata).toBeNull();
+    syncMediaSession(null);
+  });
+
   it('Spotify (remote only) never touches navigator.mediaSession', () => {
     const { session } = fakeSession();
     _setSessionForTests(session);

@@ -179,10 +179,24 @@ export function attachMediaSession(controller: MediaController): void {
   });
 }
 
-/** Single entry point used by the media manager whenever the active source changes. */
+let watcher: (() => void) | null = null;
+
+/**
+ * Single entry point used by the media manager whenever the active source changes.
+ * A source that owns the session only takes the keys while it actually has something loaded: merely being the
+ * "last used" source at launch must not steal them from whatever else is playing on the phone.
+ */
 export function syncMediaSession(controller: MediaController | null): void {
-  if (controller?.ownsMediaSession) attachMediaSession(controller);
-  else releaseMediaSession();
+  watcher?.();
+  watcher = null;
+  if (!controller?.ownsMediaSession) return releaseMediaSession();
+  const reconcile = () => {
+    const hasTrack = !!controller.state$.getState().track;
+    if (hasTrack && attached !== controller) attachMediaSession(controller);
+    else if (!hasTrack && attached === controller) releaseMediaSession();
+  };
+  reconcile();
+  watcher = controller.state$.subscribe(reconcile);
 }
 
 export interface MediaSessionDiagnostics {

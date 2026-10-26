@@ -10,6 +10,7 @@ import { Icon } from '../components/Icon';
 import { MediaNotice, useNoticeVisible } from '../components/MediaNotice';
 import { Sheet } from '../components/Overlays';
 import { Scrubber } from '../components/Scrubber';
+import { PlayerSlot } from '../components/YouTubeHost';
 import { useArtColor } from '../hooks/useArtColor';
 import { useLayout } from '../hooks/useViewport';
 
@@ -139,7 +140,11 @@ export default function NowPlaying() {
         <MediaNotice />
       </div>
       <div className="np__art">
-        <Artwork url={track.artworkUrl} playing={playing} source={source} />
+        {source === 'youtube' ? (
+          <PlayerSlot />
+        ) : (
+          <Artwork url={track.artworkUrl} playing={playing} source={source} />
+        )}
       </div>
 
       <div className="np__panel">

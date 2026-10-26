@@ -10,6 +10,7 @@ import { useThemeEngine } from './ui/hooks/useThemeEngine';
 import { useMediaState } from './services/media/manager';
 import { NightDim } from './ui/NightDim';
 import { NavChooser } from './ui/components/NavChooser';
+import { YouTubeHost } from './ui/components/YouTubeHost';
 import { useAppEffects } from './ui/hooks/useAppEffects';
 
 const Dashboard = lazy(() => import('./ui/screens/Dashboard'));
@@ -17,6 +18,7 @@ const NowPlaying = lazy(() => import('./ui/screens/NowPlaying'));
 const SpotifyScreen = lazy(() => import('./ui/screens/SpotifyScreen'));
 const MapsScreen = lazy(() => import('./ui/screens/MapsScreen'));
 const Destinations = lazy(() => import('./ui/screens/Destinations'));
+const YouTubeScreen = lazy(() => import('./ui/screens/YouTubeScreen'));
 
 function renderEntry(entry: Entry): ReactNode {
   switch (entry.screen) {
@@ -32,6 +34,8 @@ function renderEntry(entry: Entry): ReactNode {
       return <MapsScreen params={entry.params} />;
     case 'destinations':
       return <Destinations />;
+    case 'youtube':
+      return <YouTubeScreen />;
     default:
       return <Placeholder screen={entry.screen} />;
   }
@@ -55,6 +59,7 @@ export default function App() {
           <ScreenHost render={renderEntry} />
         </Suspense>
       </Chassis>
+      <YouTubeHost />
       <NightDim />
       <DialogHost />
       <PassengerPrompt />

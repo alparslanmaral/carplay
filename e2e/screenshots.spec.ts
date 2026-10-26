@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   FAKE_SPOTIFY_TOKEN,
+  FAKE_YOUTUBE_TOKEN,
   LANDSCAPE,
   PORTRAIT,
   mockExternal,
@@ -44,6 +45,13 @@ const spotifySettings = {
   defaultSource: 'spotify',
   lastSource: 'spotify',
   spotifyClientId: 'CLIENT',
+};
+
+const ytSettings = {
+  demoPlayer: false,
+  defaultSource: 'youtube',
+  lastSource: 'youtube',
+  googleClientId: 'CLIENT',
 };
 
 const scenes: Scene[] = [
@@ -158,6 +166,84 @@ const scenes: Scene[] = [
     act: async (page) => {
       await page.waitForSelector('.mapcanvas[data-ready="true"]');
       await page.waitForTimeout(1500);
+    },
+  },
+  {
+    name: 'youtube-library',
+    url: '/?screen=youtube',
+    settings: ytSettings,
+    storage: FAKE_YOUTUBE_TOKEN,
+    act: async (page) => {
+      await page.waitForSelector('.row');
+      await page.waitForTimeout(300);
+    },
+  },
+  {
+    name: 'youtube-playing',
+    url: '/?screen=youtube',
+    settings: ytSettings,
+    storage: FAKE_YOUTUBE_TOKEN,
+    act: async (page) => {
+      await page.getByRole('radio', { name: 'Liked videos' }).click();
+      await page.locator('.row').first().click();
+      await page.waitForSelector('[data-testid="yt-iframe"]');
+      await page.waitForTimeout(1200);
+    },
+  },
+  {
+    name: 'youtube-parked',
+    url: '/?screen=youtube',
+    settings: ytSettings,
+    storage: FAKE_YOUTUBE_TOKEN,
+    act: async (page) => {
+      await page.getByRole('radio', { name: 'Liked videos' }).click();
+      await page.locator('.row').first().click();
+      await page.waitForSelector('[data-testid="yt-iframe"]');
+      await page.evaluate(() =>
+        (window as unknown as { __dd: { geo: { getState(): { ingest(p: unknown): void } } } }).__dd.geo
+          .getState()
+          .ingest({
+            coords: { latitude: 41, longitude: 29, accuracy: 5, speed: 14, heading: 90 },
+            timestamp: Date.now(),
+          }),
+      );
+      await page.waitForSelector('.ythost__parked');
+    },
+  },
+  {
+    name: 'youtube-nowplaying',
+    url: '/?screen=youtube',
+    settings: ytSettings,
+    storage: FAKE_YOUTUBE_TOKEN,
+    act: async (page) => {
+      await page.getByRole('radio', { name: 'Liked videos' }).click();
+      await page.locator('.row').first().click();
+      await page.waitForSelector('[data-testid="yt-iframe"]');
+      await page.evaluate(() =>
+        (window as unknown as { __dd: { router: { getState(): { reset(s: string): void } } } }).__dd.router
+          .getState()
+          .reset('nowplaying'),
+      );
+      await page.waitForSelector('.np__title');
+      await page.waitForTimeout(1200);
+    },
+  },
+  {
+    name: 'youtube-mini',
+    url: '/?screen=youtube',
+    settings: ytSettings,
+    storage: FAKE_YOUTUBE_TOKEN,
+    act: async (page) => {
+      await page.getByRole('radio', { name: 'Liked videos' }).click();
+      await page.locator('.row').first().click();
+      await page.waitForSelector('[data-testid="yt-iframe"]');
+      await page.evaluate(() =>
+        (window as unknown as { __dd: { router: { getState(): { reset(s: string): void } } } }).__dd.router
+          .getState()
+          .reset('home'),
+      );
+      await page.waitForSelector('.ythost[data-mode="mini"]');
+      await page.waitForTimeout(1000);
     },
   },
   {

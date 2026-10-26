@@ -30,6 +30,7 @@ export async function seed(
 /** Deterministic network: external services are stubbed so screenshots never depend on live data. */
 export async function mockExternal(page: Page): Promise<void> {
   await mockMaps(page);
+  await mockYouTube(page);
   await page.route('**/api.open-meteo.com/**', (route) =>
     route.fulfill({
       json: { current: { temperature_2m: 17.4, weather_code: 2, is_day: 1, wind_speed_10m: 14 } },
@@ -145,6 +146,96 @@ export async function mockMaps(page: Page): Promise<void> {
       },
     }),
   );
+}
+
+export const FAKE_YOUTUBE_TOKEN = {
+  'dd.youtube.token': { accessToken: 'YT', expiresAt: 4_102_444_800_000 },
+};
+
+/** Test double for the IFrame API: a labelled box with a ticking clock instead of a real iframe. */
+const FAKE_IFRAME_API = `
+window.YT = { Player: function (el, cfg) {
+  var self = this, state = -1, started = 0, base = 0, id = '';
+  var box = document.createElement('div');
+  box.setAttribute('data-testid', 'yt-iframe');
+  box.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,#1b1f2a,#3a4160);display:grid;place-items:center;color:#fff;font:600 14px -apple-system,sans-serif;text-align:center;padding:8px';
+  el.appendChild(box);
+  function set(s) { state = s; cfg.events.onStateChange({ data: s, target: self }); }
+  function paint() { box.textContent = 'YouTube player (test double)\\n' + id; box.style.whiteSpace = 'pre-line'; }
+  this.loadVideoById = function (v) { id = v; base = 0; started = Date.now(); paint(); set(1); };
+  this.cueVideoById = function (v) { id = v; base = 0; paint(); set(5); };
+  this.playVideo = function () { started = Date.now(); set(1); };
+  this.pauseVideo = function () { base = this.getCurrentTime(); set(2); };
+  this.stopVideo = function () { set(0); };
+  this.seekTo = function (s) { base = s; started = Date.now(); };
+  this.getCurrentTime = function () { return state === 1 ? base + (Date.now() - started) / 1000 : base; };
+  this.getDuration = function () { return 213; };
+  this.getPlayerState = function () { return state; };
+  this.setVolume = function () {}; this.getVolume = function () { return 100; };
+  this.destroy = function () { box.remove(); };
+  setTimeout(function () { cfg.events.onReady({ target: self }); }, 0);
+} };
+setTimeout(function () { window.onYouTubeIframeAPIReady && window.onYouTubeIframeAPIReady(); }, 0);
+`;
+
+const ytThumb = (n: string) => ({
+  high: { url: `https://mock.test/mock-img/yt-${n}` },
+  medium: { url: `https://mock.test/mock-img/yt-${n}` },
+});
+
+/** Stubs the YouTube Data API and the IFrame API. */
+export async function mockYouTube(page: Page): Promise<void> {
+  await page.route('https://www.youtube.com/iframe_api', (route) =>
+    route.fulfill({ contentType: 'application/javascript', body: FAKE_IFRAME_API }),
+  );
+  const videos = [
+    'Rainy Night Drive - Lo-fi Mix',
+    'Coastal Highway Timelapse 4K',
+    'City Lights Ambient',
+    'Sunrise Road Trip Playlist',
+  ];
+  const item = (i: number) => ({
+    snippet: {
+      title: videos[i % videos.length],
+      videoOwnerChannelTitle: 'Open Roads',
+      thumbnails: ytThumb(String(i)),
+      resourceId: { videoId: `vid${i}aaaaaaa` },
+    },
+    contentDetails: { videoId: `vid${i}aaaaaaa` },
+  });
+  await page.route('https://www.googleapis.com/youtube/v3/**', (route) => {
+    const url = new URL(route.request().url());
+    const json = (body: unknown) => route.fulfill({ json: body });
+    switch (url.pathname.split('/').pop()) {
+      case 'playlists':
+        return json({
+          pageInfo: { totalResults: 3 },
+          items: ['Road Trip Mix', 'Podcasts', 'Watch later'].map((title, i) => ({
+            id: `PLmock${i}`,
+            snippet: { title, thumbnails: ytThumb(`pl${i}`) },
+            contentDetails: { itemCount: 12 + i * 7 },
+          })),
+        });
+      case 'playlistItems':
+        return json({ pageInfo: { totalResults: 4 }, items: [0, 1, 2, 3].map(item) });
+      case 'videos':
+        return json({
+          items: (url.searchParams.get('id') ?? '')
+            .split(',')
+            .filter(Boolean)
+            .map((id) => ({ id, contentDetails: { duration: 'PT3M33S' } })),
+        });
+      case 'search':
+        return json({
+          items: [0, 1, 2, 3].map((i) => ({
+            id: { videoId: `vid${i}aaaaaaa` },
+            snippet: { title: videos[i], channelTitle: 'Open Roads', thumbnails: ytThumb(String(i)) },
+          })),
+        });
+      default:
+        return json({ items: [] });
+    }
+  });
 }
 
 export const FAKE_SPOTIFY_TOKEN = {
