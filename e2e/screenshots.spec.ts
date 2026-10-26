@@ -113,6 +113,54 @@ const scenes: Scene[] = [
     },
   },
   {
+    name: 'maps-destination',
+    url: '/?demo=1&screen=home',
+    settings: { recents: places, favorites, navApp: 'apple' },
+    act: async (page) => {
+      await page.evaluate(() =>
+        (
+          window as unknown as { __dd: { router: { getState(): { reset(s: string, p: object): void } } } }
+        ).__dd.router
+          .getState()
+          .reset('maps', { dest: 'r1' }),
+      );
+      await page.waitForSelector('.maps__sheet');
+      await page.waitForTimeout(900);
+    },
+  },
+  {
+    name: 'maps-search',
+    url: '/?demo=1&screen=maps',
+    settings: { recents: places, favorites },
+    act: async (page) => {
+      await page.locator('.maps__search input').fill('galata');
+      await page.waitForSelector('.maps__panel [role="option"]');
+    },
+  },
+  {
+    name: 'maps-suggestions',
+    url: '/?demo=1&screen=maps',
+    settings: { recents: places, favorites },
+    act: async (page) => {
+      await page.locator('.maps__search input').click();
+      await page.waitForSelector('.maps__chips');
+    },
+  },
+  {
+    name: 'destinations',
+    url: '/?demo=1&screen=destinations',
+    settings: { recents: places, favorites },
+  },
+  {
+    name: 'dashboard-map',
+    url: '/?demo=1&screen=dashboard',
+    settings: { recents: places, favorites, mapStyle: 'dark' },
+    act: async (page) => {
+      await page.waitForSelector('.mapcanvas[data-ready="true"]');
+      await page.waitForTimeout(1500);
+    },
+  },
+  {
     name: 'spotify-connect',
     url: '/?screen=spotify',
     settings: spotifySettings,

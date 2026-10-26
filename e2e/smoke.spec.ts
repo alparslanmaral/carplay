@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { LANDSCAPE, PORTRAIT, seed, waitForApp } from './helpers';
+import { LANDSCAPE, PORTRAIT, mockExternal, seed, waitForApp } from './helpers';
 
 test.describe('shell', () => {
   test('home shows the app grid and a dock with the Home button', async ({ page }) => {
@@ -56,6 +56,54 @@ test.describe('shell', () => {
       .locator('.home__cell .app-icon')
       .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
     expect(names.length).toBeLessThan(7);
+  });
+
+  test('driving lock: typing is blocked above the speed threshold until a passenger confirms', async ({
+    page,
+  }) => {
+    await seed(page, { recents: [], navApp: 'apple' });
+    await mockExternal(page);
+    await page.goto('/?screen=maps');
+    await waitForApp(page);
+    const input = page.locator('.maps__search input');
+    await expect(input).toHaveAttribute('data-locked', 'false');
+
+    // Simulate the car moving at 50 km/h.
+    await page.evaluate(() => {
+      const dd = (window as unknown as { __dd: { geo: { getState(): { ingest(p: unknown): void } } } }).__dd;
+      dd.geo.getState().ingest({
+        coords: { latitude: 41, longitude: 29, accuracy: 5, speed: 50 / 3.6, heading: 90 },
+        timestamp: Date.now(),
+      });
+    });
+    await expect(input).toHaveAttribute('data-locked', 'true');
+    await input.click();
+    const prompt = page.getByRole('alertdialog', { name: 'Parked? Passenger mode' });
+    await expect(prompt).toBeVisible();
+
+    await prompt.getByRole('button', { name: "I'm a passenger" }).click();
+    await expect(prompt).toBeHidden();
+    await expect(input).toHaveAttribute('data-locked', 'false');
+    await input.fill('galata');
+    await expect(page.locator('.maps__panel [role="option"]').first()).toBeVisible();
+  });
+
+  test('hand-off uses the documented deep link for the preferred navigation app', async ({ page }) => {
+    await seed(page, {
+      navApp: 'waze',
+      recents: [{ id: 'r1', name: 'Pier', lat: 40.9925, lng: 29.0245, ts: 1 }],
+    });
+    await mockExternal(page);
+    // Intercept the navigation instead of leaving the app.
+    let target = '';
+    await page.route('https://waze.com/**', (route) => {
+      target = route.request().url();
+      return route.fulfill({ status: 200, contentType: 'text/html', body: '<html>waze</html>' });
+    });
+    await page.goto('/?screen=dashboard');
+    await waitForApp(page);
+    await page.locator('[data-widget="recents"] .row').first().click();
+    await expect.poll(() => target).toBe('https://waze.com/ul?ll=40.9925,29.0245&navigate=yes');
   });
 
   test('changing the accent setting updates the live design token', async ({ page }) => {

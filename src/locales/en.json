@@ -110,7 +110,43 @@
     "unknown": "Unknown"
   },
   "maps": {
-    "navigateIn": "Navigate in…"
+    "navigateIn": "Navigate in…",
+    "navigateInApp": "Navigate in {{app}}",
+    "navigate": "Navigate",
+    "otherApp": "Other app",
+    "search": "Search places",
+    "searchFor": "Search for your {{what}} address",
+    "typeToSearch": "Type at least 2 letters to search.",
+    "pressSearch": "Press Search on the keyboard to look this up.",
+    "noResults": "No results.",
+    "results": "Search results",
+    "locate": "My location",
+    "recenter": "Recenter",
+    "openMap": "Open map",
+    "droppedPin": "Dropped pin",
+    "straightLine": "{{d}} straight line",
+    "saveFavorite": "Save",
+    "saved": "Saved",
+    "savedAs": "Saved as {{kind}}",
+    "setSlot": "Set {{slot}}",
+    "kind": {
+      "home": "Home",
+      "work": "Work",
+      "custom": "Favorite"
+    },
+    "locationDenied": "Location is blocked. Allow it for DriveDeck in iOS Settings > Privacy > Location Services to see yourself on the map.",
+    "providerFallback": "Map provider unavailable ({{reason}}). Using OpenStreetMap."
+  },
+  "destinations": {
+    "favorites": "Favorites",
+    "recents": "Recent",
+    "work": "Work",
+    "clear": "Clear",
+    "clearTitle": "Clear recent destinations?",
+    "removeTitle": "Remove {{name}}?",
+    "rename": "Rename {{name}}",
+    "slotsHint": "Set {{slots}} from a destination in Maps.",
+    "searchMaps": "Search in Maps"
   },
   "spotify": {
     "library": "Your library",

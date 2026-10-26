@@ -14,6 +14,7 @@ import { useMedia, useMediaState } from '../../services/media/manager';
 import { Icon } from '../components/Icon';
 import { useClock } from '../hooks/useClock';
 import { launchApp } from '../launch';
+import { MapWidget } from './MapWidget';
 
 /* ---------- Now Playing ---------- */
 function NowPlayingWidget() {
@@ -241,6 +242,7 @@ export interface WidgetDef {
 }
 
 export const WIDGETS: WidgetDef[] = [
+  { id: 'map', titleKey: 'widgets.map', icon: 'map', component: MapWidget, bare: true },
   { id: 'nowplaying', titleKey: 'widgets.nowplaying', icon: 'music', component: NowPlayingWidget },
   { id: 'speed', titleKey: 'widgets.speed', icon: 'gauge', component: SpeedWidget },
   { id: 'clock', titleKey: 'widgets.clock', icon: 'clock', component: ClockWidget },

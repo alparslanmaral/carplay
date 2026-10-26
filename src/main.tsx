@@ -9,6 +9,7 @@ import './styles/components.css';
 import './styles/home.css';
 import './styles/dashboard.css';
 import './styles/nowplaying.css';
+import './styles/maps.css';
 
 bootstrapApp();
 

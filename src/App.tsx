@@ -15,6 +15,8 @@ import { useAppEffects } from './ui/hooks/useAppEffects';
 const Dashboard = lazy(() => import('./ui/screens/Dashboard'));
 const NowPlaying = lazy(() => import('./ui/screens/NowPlaying'));
 const SpotifyScreen = lazy(() => import('./ui/screens/SpotifyScreen'));
+const MapsScreen = lazy(() => import('./ui/screens/MapsScreen'));
+const Destinations = lazy(() => import('./ui/screens/Destinations'));
 
 function renderEntry(entry: Entry): ReactNode {
   switch (entry.screen) {
@@ -26,6 +28,10 @@ function renderEntry(entry: Entry): ReactNode {
       return <NowPlaying />;
     case 'spotify':
       return <SpotifyScreen />;
+    case 'maps':
+      return <MapsScreen params={entry.params} />;
+    case 'destinations':
+      return <Destinations />;
     default:
       return <Placeholder screen={entry.screen} />;
   }

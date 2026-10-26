@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { deflateSync } from 'node:zlib';
 
 /**
  * Preload persisted settings before the app boots (skips onboarding, enables the demo player).
@@ -28,6 +29,7 @@ export async function seed(
 
 /** Deterministic network: external services are stubbed so screenshots never depend on live data. */
 export async function mockExternal(page: Page): Promise<void> {
+  await mockMaps(page);
   await page.route('**/api.open-meteo.com/**', (route) =>
     route.fulfill({
       json: { current: { temperature_2m: 17.4, weather_code: 2, is_day: 1, wind_speed_10m: 14 } },
@@ -42,6 +44,107 @@ export async function mockExternal(page: Page): Promise<void> {
       body: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="hsl(${hue} 60% 45%)"/><circle cx="50" cy="50" r="22" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="6"/></svg>`,
     });
   });
+}
+
+/* ---------- fake map tiles (deterministic, offline) ---------- */
+
+function crc32(buf: Buffer): number {
+  let c = ~0;
+  for (const byte of buf) {
+    c ^= byte;
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+  }
+  return ~c >>> 0;
+}
+
+function chunk(type: string, data: Buffer): Buffer {
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body));
+  return Buffer.concat([len, body, crc]);
+}
+
+/** 256x256 street-like PNG derived from the tile coordinates, so neighbouring tiles look related. */
+export function fakeTile(z: number, x: number, y: number, dark: boolean): Buffer {
+  const size = 256;
+  const bg = dark ? [28, 34, 48] : [233, 238, 240];
+  const minor = dark ? [44, 52, 70] : [255, 255, 255];
+  const major = dark ? [74, 84, 108] : [247, 214, 142];
+  const raw = Buffer.alloc((size * 4 + 1) * size);
+  const seed = (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
+  const hash = (n: number) => Math.abs(Math.sin(n + seed) * 10000) % 1;
+  const rows = [hash(1), hash(2), hash(3)].map((r) => Math.floor(r * size));
+  const cols = [hash(4), hash(5), hash(6)].map((r) => Math.floor(r * size));
+  for (let py = 0; py < size; py++) {
+    raw[py * (size * 4 + 1)] = 0;
+    for (let px = 0; px < size; px++) {
+      let c = bg;
+      if (rows.some((r) => Math.abs(py - r) < 3) || cols.some((q) => Math.abs(px - q) < 3)) c = minor;
+      if (Math.abs(py - rows[0]!) < 6 || Math.abs(px - cols[0]!) < 6) c = major;
+      if ((px + py + seed) % 97 === 0) c = minor;
+      const o = py * (size * 4 + 1) + 1 + px * 4;
+      raw[o] = c[0]!;
+      raw[o + 1] = c[1]!;
+      raw[o + 2] = c[2]!;
+      raw[o + 3] = 255;
+    }
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', ihdr),
+    chunk('IDAT', deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0)),
+  ]);
+}
+
+export async function mockMaps(page: Page): Promise<void> {
+  await page.route(/(basemaps\.cartocdn\.com|arcgisonline\.com)/, (route) => {
+    const url = route.request().url();
+    const m = /\/(\d+)\/(\d+)\/(\d+)(?:@2x)?\.png|\/(\d+)\/(\d+)\/(\d+)$/.exec(url);
+    const nums = (m ?? []).slice(1).filter(Boolean).map(Number);
+    const [z = 0, x = 0, y = 0] = nums;
+    return route.fulfill({ contentType: 'image/png', body: fakeTile(z, x, y, url.includes('dark_all')) });
+  });
+  await page.route('https://photon.komoot.io/api/**', (route) =>
+    route.fulfill({
+      json: {
+        features: [
+          { name: 'Galata Tower', city: 'Istanbul', country: 'Türkiye', c: [28.9741, 41.0256] },
+          { name: 'Galata Bridge', city: 'Istanbul', country: 'Türkiye', c: [28.9733, 41.0206] },
+          { name: 'Galatasaray Island', city: 'Istanbul', country: 'Türkiye', c: [29.0356, 41.0455] },
+        ].map((f, i) => ({
+          geometry: { coordinates: f.c },
+          properties: {
+            osm_id: 100 + i,
+            osm_type: 'N',
+            name: f.name,
+            city: f.city,
+            country: f.country,
+            countrycode: 'TR',
+          },
+        })),
+      },
+    }),
+  );
+  await page.route('https://photon.komoot.io/reverse**', (route) =>
+    route.fulfill({
+      json: {
+        features: [
+          {
+            geometry: { coordinates: [29.0, 41.04] },
+            properties: { name: 'Barbaros Boulevard', city: 'Istanbul', country: 'Türkiye' },
+          },
+        ],
+      },
+    }),
+  );
 }
 
 export const FAKE_SPOTIFY_TOKEN = {

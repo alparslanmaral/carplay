@@ -1,9 +1,9 @@
 import { decideStartRoute, readHandoff } from './startRoute';
 import { isScreenId, readPersistedStack, restoreStack, startRouterPersistence, useRouter } from './router';
 import { getSettings, useSettings } from './settings';
-import { startDrivingMonitor } from './driving';
+import { startDrivingMonitor, useDriving } from './driving';
 import { setupI18n } from './i18n';
-import { startGeoIfPermitted } from '../services/maps/geolocation';
+import { startGeoIfPermitted, useGeo } from '../services/maps/geolocation';
 import { DemoController } from '../services/media/demo';
 import {
   pickInitialSource,
@@ -46,6 +46,16 @@ export function bootstrapApp(): void {
   const screenParam = params.get('screen');
   // ?screen=<id> opens a screen directly (used by the screenshot/e2e tooling and handy for bookmarks).
   if (isScreenId(screenParam) && screenParam !== 'onboarding') useRouter.getState().reset(screenParam);
+
+  if (import.meta.env.DEV) {
+    // Debug/e2e hook (dev server only, never in production builds): lets tests simulate driving.
+    (window as unknown as { __dd: unknown }).__dd = {
+      geo: useGeo,
+      driving: useDriving,
+      settings: useSettings,
+      router: useRouter,
+    };
+  }
 
   startRouterPersistence();
   startDrivingMonitor();

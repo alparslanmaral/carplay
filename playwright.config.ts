@@ -1,6 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
-const PORT = 5173;
+// E2E_PREVIEW=1 runs against the production build (service worker, minified bundle) instead of the dev server.
+const PREVIEW = !!process.env.E2E_PREVIEW;
+const PORT = PREVIEW ? 4173 : 5173;
 
 export default defineConfig({
   testDir: 'e2e',
@@ -26,7 +28,7 @@ export default defineConfig({
     { name: 'shots', testMatch: /screenshots\.spec\.ts/ },
   ],
   webServer: {
-    command: 'npm run dev',
+    command: PREVIEW ? 'npm run build && npm run preview' : 'npm run dev',
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: true,
     timeout: 60_000,
