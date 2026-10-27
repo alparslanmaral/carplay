@@ -8,6 +8,7 @@ export type ScreenId =
   | 'youtube'
   | 'maps'
   | 'destinations'
+  | 'sport'
   | 'settings'
   | 'diagnostics'
   | 'limitations'
@@ -50,6 +51,7 @@ const SCREENS: readonly ScreenId[] = [
   'youtube',
   'maps',
   'destinations',
+  'sport',
   'settings',
   'diagnostics',
   'limitations',

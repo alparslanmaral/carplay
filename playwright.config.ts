@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+﻿import { defineConfig } from '@playwright/test';
 
 const DEV_PORT = 5173;
 const PREVIEW_PORT = 4173;
@@ -26,7 +26,7 @@ export default defineConfig({
   projects: [
     {
       name: 'smoke',
-      testMatch: /(smoke|touch-targets|navigation)\.spec\.ts/,
+      testMatch: /(smoke|touch-targets|navigation|sport)\.spec\.ts/,
       use: { viewport: { width: 390, height: 844 } },
     },
     { name: 'shots', testMatch: /screenshots\.spec\.ts/ },

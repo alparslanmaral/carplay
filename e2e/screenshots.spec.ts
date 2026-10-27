@@ -169,6 +169,32 @@ const scenes: Scene[] = [
     },
   },
   {
+    name: 'sport',
+    url: '/?demo=1&screen=sport',
+    act: async (page) => {
+      await page.getByRole('button', { name: /Sport mode off/ }).click();
+      await page.getByRole('button', { name: 'Test sound' }).click();
+      await page.waitForTimeout(3600);
+    },
+  },
+  {
+    name: 'dashboard-navigating',
+    url: '/?demo=1&screen=home',
+    settings: { recents: places, favorites, navApp: 'drivedeck', avoidTolls: true },
+    act: async (page) => {
+      await openRouteSheet(page);
+      await page.getByRole('button', { name: 'Start' }).click();
+      await page.waitForSelector('.nav__banner');
+      await page.evaluate(() =>
+        (window as unknown as { __dd: { router: { getState(): { reset(s: string): void } } } }).__dd.router
+          .getState()
+          .reset('dashboard'),
+      );
+      await page.waitForSelector('.widget-map__nav');
+      await page.waitForTimeout(1500);
+    },
+  },
+  {
     name: 'maps-search',
     url: '/?demo=1&screen=maps',
     settings: { recents: places, favorites },

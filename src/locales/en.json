@@ -30,7 +30,26 @@
     "youtube": "YouTube",
     "nowplaying": "Now Playing",
     "destinations": "Destinations",
+    "sport": "Sport",
     "settings": "Settings"
+  },
+  "sport": {
+    "title": "Sport mode",
+    "on": "Sport mode on",
+    "off": "Sport mode off",
+    "turnOn": "Turn on",
+    "turnOff": "Turn off",
+    "tapToEnable": "Tap anywhere once to allow sound. iOS requires a touch before an app may play audio.",
+    "listening": "Following your speed. Sounds start when you move.",
+    "unsupported": "This browser cannot play synthesised sound.",
+    "test": "Test sound",
+    "stopTest": "Stop test",
+    "testHint": "Plays a scripted drive so you can hear your choices while parked.",
+    "rpm": "rpm",
+    "gear": "Gear",
+    "boost": "Boost",
+    "muteSwitch": "If you hear nothing, check that the iPhone ringer switch is not on silent and that the car is playing the iPhone as its audio source.",
+    "settings": "All sport settings"
   },
   "status": {
     "online": "Online",
@@ -246,6 +265,7 @@
       "layout": "Dashboard, home pages, shortcuts",
       "media": "Spotify, YouTube, Now Playing",
       "maps": "Navigation app, map, search, favorites",
+      "sport": "Engine, turbo and exhaust sounds",
       "driving": "Screen, typing lock, touch size, dimming",
       "accounts": "Connect accounts, API keys, backup",
       "about": "Version, known limitations, diagnostics"
@@ -395,6 +415,11 @@
         "icon": "navigate",
         "title": "Turn-by-turn navigation",
         "body": "Apple Maps, Google Maps and Waze cannot be embedded in a web app, so DriveDeck hands the destination over to the one you choose and restores the screen when you come back. DriveDeck can also guide you itself with open-source routing (OpenStreetMap data, optional toll and motorway avoidance), but only while it is open on screen: iOS stops GPS for web apps in the background and gives them no live traffic, speed limits or lane guidance. Spoken directions use the iPhone voice and can briefly interrupt Spotify. For long or unfamiliar trips, use a dedicated navigation app."
+      },
+      {
+        "icon": "engine",
+        "title": "Sport mode sounds",
+        "body": "The engine, turbo and exhaust are synthesised in the app from your real speed; nothing is read from the car. A phone gets a new GPS speed about once a second, so the sound follows hard acceleration with up to a second of delay, and the revs, gears and boost are an estimate, not the real engine. Sound only plays while DriveDeck is open on screen, and iOS needs one tap after launch before it allows audio. The ringer switch must not be on silent. DriveDeck asks iOS to mix its sounds with other audio and never claims Now Playing, so Spotify and the steering-wheel buttons keep working, but how the iPhone and the car mix the two on a real drive is not something an app can guarantee. Loud synthetic exhaust sounds can disturb people outside the car: use them where that is appropriate."
       },
       {
         "icon": "video",

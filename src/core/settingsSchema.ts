@@ -1,3 +1,4 @@
+import { ENGINE_LABELS, EXHAUST_LABELS, POP_TRIGGER_LABELS, TURBO_LABELS } from '../services/sport/profiles';
 import type { Features } from './features';
 import { OPTIONS, type Settings } from './settings';
 
@@ -456,6 +457,86 @@ export const SECTIONS: SettingSection[] = [
         'GPS accuracy',
         opts('gpsMode', { high: 'High', balanced: 'Balanced' }),
         'High uses more battery but follows you more closely.',
+      ),
+    ],
+  },
+  {
+    id: 'sport',
+    icon: 'engine',
+    title: 'Sport mode',
+    items: [
+      toggle(
+        'sportMode',
+        'Sport mode',
+        'Synthesised engine, turbo and exhaust sounds that follow your real speed and acceleration, through the iPhone or the car speakers. Works only while DriveDeck is open on screen.',
+        { keywords: 'engine sound fake exhaust turbo motor' },
+      ),
+      toggle('sportEngineOn', 'Engine sound', 'The engine note that rises and falls with speed.', {
+        keywords: 'motor rev rpm',
+      }),
+      select(
+        'sportEngine',
+        'Engine type',
+        opts('sportEngine', ENGINE_LABELS),
+        'Changes the number of cylinders, the character and the redline.',
+        {
+          visibleIf: (s) => s.sportEngineOn,
+          keywords: 'v8 v12 v6 hellcat four cylinder boxer rotary diesel',
+        },
+      ),
+      toggle(
+        'sportTurboOn',
+        'Turbo whistle and blow-off',
+        'Whistle and inhale while accelerating, a blow-off hiss when you lift off.',
+        { keywords: 'turbo whistle boost blow off bov flutter' },
+      ),
+      select('sportTurbo', 'Turbo type', opts('sportTurbo', TURBO_LABELS), undefined, {
+        visibleIf: (s) => s.sportTurboOn,
+        keywords: 'stutu flutter whoosh twin',
+      }),
+      toggle('sportExhaustOn', 'Exhaust pops', 'Crackles and bangs from the exhaust.', {
+        keywords: 'popcorn exhaust crackle burble bang egzoz',
+      }),
+      select('sportExhaust', 'Exhaust style', opts('sportExhaust', EXHAUST_LABELS), undefined, {
+        visibleIf: (s) => s.sportExhaustOn,
+      }),
+      select(
+        'sportPopTrigger',
+        'Pops happen',
+        opts('sportPopTrigger', POP_TRIGGER_LABELS),
+        'Hard acceleration is detected from the change in GPS speed. Gear changes at full throttle always bang.',
+        { visibleIf: (s) => s.sportExhaustOn },
+      ),
+      slider('sportVolume', 'Sport volume', 0, 100, 5, 'percent', 'Master volume of all sport sounds.'),
+      slider('sportEngineVolume', 'Engine volume', 0, 100, 5, 'percent', undefined, {
+        visibleIf: (s) => s.sportEngineOn,
+      }),
+      slider('sportTurboVolume', 'Turbo volume', 0, 100, 5, 'percent', undefined, {
+        visibleIf: (s) => s.sportTurboOn,
+      }),
+      slider('sportExhaustVolume', 'Exhaust volume', 0, 100, 5, 'percent', undefined, {
+        visibleIf: (s) => s.sportExhaustOn,
+      }),
+      slider(
+        'sportSensitivity',
+        'Sensitivity',
+        1,
+        10,
+        1,
+        'count',
+        'How easily acceleration counts as hard. Higher reacts to gentler pulls.',
+      ),
+      toggle('sportIdle', 'Idle sound when stopped', 'The engine keeps idling at traffic lights.'),
+      toggle(
+        'sportGearbox',
+        'Simulated gearbox',
+        'Revs rise and fall through gears. Off gives one smooth, continuous rev range.',
+      ),
+      toggle(
+        'sportPreciseGps',
+        'Maximum GPS precision',
+        'While sport mode is on, asks for the freshest, most accurate position with no cached fixes. Uses more battery.',
+        { keywords: 'gps accuracy precise' },
       ),
     ],
   },

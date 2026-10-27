@@ -18,6 +18,7 @@ const SpotifyScreen = lazy(() => import('./ui/screens/SpotifyScreen'));
 const MapsScreen = lazy(() => import('./ui/screens/MapsScreen'));
 const Destinations = lazy(() => import('./ui/screens/Destinations'));
 const YouTubeScreen = lazy(() => import('./ui/screens/YouTubeScreen'));
+const SportScreen = lazy(() => import('./ui/screens/SportScreen'));
 const SettingsScreen = lazy(() => import('./ui/screens/SettingsScreen'));
 const Diagnostics = lazy(() => import('./ui/screens/Diagnostics'));
 const Limitations = lazy(() => import('./ui/screens/Limitations'));
@@ -40,6 +41,8 @@ function renderEntry(entry: Entry): ReactNode {
       return <Destinations />;
     case 'youtube':
       return <YouTubeScreen />;
+    case 'sport':
+      return <SportScreen />;
     case 'settings':
       return <SettingsScreen params={entry.params} />;
     case 'diagnostics':

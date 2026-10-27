@@ -351,6 +351,179 @@
   font-weight: 750;
 }
 
+/* trip summary on the dashboard map card (purely visual: the card is a button that opens Maps) */
+.widget-map {
+  position: relative;
+}
+.widget-map__nav {
+  position: absolute;
+  z-index: 2;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  pointer-events: none;
+}
+.widget-map__bar {
+  position: absolute;
+  z-index: 2;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: calc(var(--radius) * 0.7);
+  background: var(--glass-strong);
+  font-size: calc(1rem * var(--text-scale));
+  pointer-events: none;
+  min-width: 0;
+}
+.widget-map__bar strong {
+  font-size: 1.25em;
+}
+.nav__banner--compact {
+  padding: 0.375rem 0.75rem;
+  min-height: 0;
+  gap: 0.625rem;
+}
+.nav__banner--compact .nav__dist {
+  font-size: calc(1.25rem * var(--text-scale));
+}
+.nav__banner--compact .nav__instr {
+  font-size: calc(0.875rem * var(--text-scale));
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+/* ---------- Sport mode ---------- */
+.sport {
+  display: grid;
+  gap: 1rem;
+}
+.sport__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.tach {
+  position: relative;
+  width: min(100%, 17rem);
+  aspect-ratio: 1;
+}
+.tach__svg {
+  width: 100%;
+  height: 100%;
+}
+.tach__track {
+  stroke: color-mix(in srgb, var(--text) 14%, transparent);
+}
+.tach__red {
+  stroke: color-mix(in srgb, var(--danger) 70%, transparent);
+}
+.tach__value {
+  stroke: var(--accent);
+  transition: stroke-dasharray 0.08s linear;
+}
+.tach[data-live='false'] .tach__value {
+  stroke: transparent;
+}
+.tach__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+}
+.tach__rpm {
+  font-size: calc(2.75rem * var(--text-scale));
+  font-weight: 800;
+  line-height: 1;
+}
+.tach__unit,
+.tach__gear {
+  color: var(--text-dim);
+  font-size: calc(1rem * var(--text-scale));
+}
+.tach__gear {
+  color: var(--text);
+  font-weight: 650;
+  margin-top: 0.25rem;
+}
+.sport__stats {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  width: min(100%, 22rem);
+}
+.sport__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  font-size: calc(0.9375rem * var(--text-scale));
+  color: var(--text-dim);
+}
+.sport__stat strong {
+  font-size: calc(2rem * var(--text-scale));
+  color: var(--text);
+  line-height: 1;
+}
+.sport__bar {
+  height: 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+  overflow: hidden;
+}
+.sport__bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+.sport__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sport__toggle {
+  justify-content: flex-start;
+  gap: 0.75rem;
+  font-size: calc(1.25rem * var(--text-scale));
+  font-weight: 700;
+}
+/* `.btn[aria-pressed='true']` colours the text with the accent, which is also this button's background */
+.sport__toggle.btn--primary[aria-pressed='true'] {
+  color: var(--on-accent);
+}
+.sport__toggle-action {
+  margin-left: auto;
+  font-size: 0.8em;
+  font-weight: 600;
+  opacity: 0.8;
+}
+.sport__status,
+.sport__hint {
+  font-size: calc(0.875rem * var(--text-scale));
+  margin: 0;
+}
+.sport__rows {
+  margin-top: 1rem;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .sport {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+  .tach {
+    width: min(100%, 13rem);
+  }
+}
+
 /* ---------- Destinations ---------- */
 .section-title {
   font-size: calc(0.8125rem * var(--text-scale));

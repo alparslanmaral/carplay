@@ -59,6 +59,20 @@ export function deriveSpeedKmh(
   return mpsToKmh(metres / dt);
 }
 
+/**
+ * Watch options. While sport mode follows the car the freshest, most accurate fix wins: high accuracy and no
+ * cached position (maximumAge 0), because a one-second-old fix is already a different speed.
+ */
+export function geoOptions(): PositionOptions {
+  const s = getSettings();
+  const precise = s.sportMode && s.sportPreciseGps;
+  return {
+    enableHighAccuracy: precise || s.gpsMode === 'high',
+    maximumAge: precise ? 0 : 1000,
+    timeout: 20000,
+  };
+}
+
 export const useGeo = create<GeoState & GeoActions>((set, get) => ({
   ...INITIAL,
   ingest: (pos) => {
@@ -104,7 +118,7 @@ export const useGeo = create<GeoState & GeoActions>((set, get) => ({
         if (err.code === err.PERMISSION_DENIED) set({ status: 'denied', error: err.message });
         else set({ status: get().lat === null ? 'error' : 'watching', error: err.message });
       },
-      { enableHighAccuracy: getSettings().gpsMode === 'high', maximumAge: 1000, timeout: 20000 },
+      geoOptions(),
     );
   },
   stop: () => {

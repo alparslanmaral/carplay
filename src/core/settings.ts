@@ -27,6 +27,24 @@ export const OPTIONS = {
   distanceUnit: ['km', 'mi'],
   searchProvider: ['photon', 'nominatim', 'google'],
   gpsMode: ['high', 'balanced'],
+  sportEngine: [
+    'inline4',
+    'inline6',
+    'flat6',
+    'v6',
+    'v8',
+    'v8flat',
+    'v10',
+    'v12',
+    'hellcat',
+    'rotary',
+    'diesel',
+    'growl',
+    'calm',
+  ],
+  sportTurbo: ['classic', 'whoosh', 'flutter', 'twin', 'race', 'subtle'],
+  sportExhaust: ['popcorn', 'burble', 'bangs', 'crackle'],
+  sportPopTrigger: ['acceleration', 'liftoff', 'both'],
 } as const;
 
 type Opt<K extends keyof typeof OPTIONS> = (typeof OPTIONS)[K][number];
@@ -149,6 +167,25 @@ export interface Settings {
   autoHandoff: boolean;
   gpsMode: Opt<'gpsMode'>;
 
+  // Sport mode (synthesised engine / turbo / exhaust sounds that follow the real speed)
+  sportMode: boolean;
+  sportEngineOn: boolean;
+  sportEngine: Opt<'sportEngine'>;
+  sportTurboOn: boolean;
+  sportTurbo: Opt<'sportTurbo'>;
+  sportExhaustOn: boolean;
+  sportExhaust: Opt<'sportExhaust'>;
+  sportPopTrigger: Opt<'sportPopTrigger'>;
+  sportVolume: number;
+  sportEngineVolume: number;
+  sportTurboVolume: number;
+  sportExhaustVolume: number;
+  /** 1 (needs a firm push) .. 10 (reacts to gentle acceleration) */
+  sportSensitivity: number;
+  sportIdle: boolean;
+  sportGearbox: boolean;
+  sportPreciseGps: boolean;
+
   // Driving and safety
   keepAwake: boolean;
   dimEnabled: boolean;
@@ -254,6 +291,23 @@ export const DEFAULT_SETTINGS: Settings = {
   recentsLimit: 12,
   autoHandoff: false,
   gpsMode: 'high',
+
+  sportMode: false,
+  sportEngineOn: true,
+  sportEngine: 'v8',
+  sportTurboOn: true,
+  sportTurbo: 'classic',
+  sportExhaustOn: true,
+  sportExhaust: 'popcorn',
+  sportPopTrigger: 'acceleration',
+  sportVolume: 60,
+  sportEngineVolume: 100,
+  sportTurboVolume: 80,
+  sportExhaustVolume: 80,
+  sportSensitivity: 5,
+  sportIdle: true,
+  sportGearbox: true,
+  sportPreciseGps: true,
 
   keepAwake: true,
   dimEnabled: false,

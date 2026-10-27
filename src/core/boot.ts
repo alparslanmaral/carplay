@@ -6,6 +6,7 @@ import { setupI18n } from './i18n';
 import { settingsEnglish } from './settingsSchema';
 import { startGeoIfPermitted, useGeo } from '../services/maps/geolocation';
 import { resumeNavigation } from '../services/maps/navigation';
+import { initSport, useSport } from '../services/sport/controller';
 import { DemoController } from '../services/media/demo';
 import {
   pickInitialSource,
@@ -60,11 +61,13 @@ export function bootstrapApp(): void {
       driving: useDriving,
       settings: useSettings,
       router: useRouter,
+      sport: useSport,
     };
   }
 
   startRouterPersistence();
   startDrivingMonitor();
+  initSport();
   void startGeoIfPermitted();
 
   // iOS may have killed the app while another one was in front: carry on with the trip in progress.

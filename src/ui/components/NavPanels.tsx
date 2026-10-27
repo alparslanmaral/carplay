@@ -133,7 +133,7 @@ export function RouteSheet() {
 }
 
 /** Next manoeuvre card, shown in place of the search field while guiding. */
-export function GuidanceBanner() {
+export function GuidanceBanner({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
   const unit = useSettings((s) => s.distanceUnit);
   const route = useNav((s) => s.route);
@@ -146,8 +146,12 @@ export function GuidanceBanner() {
   const kind = arrived ? 'arrive' : maneuverKind(next.type);
   const glyph = kind === 'arrive' ? 'flag' : `maneuver-${kind}`;
   return (
-    <div className="nav__banner glass" role="status" aria-live="polite">
-      <Icon name={glyph} size="2.75rem" strokeWidth={2.4} />
+    <div
+      className={`nav__banner glass${compact ? ' nav__banner--compact' : ''}`}
+      role={compact ? undefined : 'status'}
+      aria-live={compact ? undefined : 'polite'}
+    >
+      <Icon name={glyph} size={compact ? '2rem' : '2.75rem'} strokeWidth={2.4} />
       <div className="nav__banner-text">
         <strong className="nav__dist tabular">
           {arrived ? t('maps.nav.arrived') : formatDistance(toNextM, unit)}
@@ -156,6 +160,44 @@ export function GuidanceBanner() {
           {rerouting ? t('maps.nav.rerouting') : arrived ? '' : next.text}
         </span>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Read-only trip summary laid over the Dashboard map card: next turn on top, arrival and remaining distance
+ * below. The card itself is one big button that opens the Maps screen, where the controls live.
+ */
+export function WidgetNavOverlay() {
+  const { t } = useTranslation();
+  const phase = useNav((s) => s.phase);
+  const destination = useNav((s) => s.destination);
+  const unit = useSettings((s) => s.distanceUnit);
+  const remainingM = useNav((s) => s.remainingM);
+  const remainingS = useNav((s) => s.remainingS);
+  const route = useNav((s) => s.route);
+  const eta = useEta(phase === 'guiding' ? remainingS : (route?.durationS ?? 0));
+  if (phase === 'idle' || !destination) return null;
+  if (phase === 'guiding') {
+    return (
+      <>
+        <div className="widget-map__nav">
+          <GuidanceBanner compact />
+        </div>
+        <div className="widget-map__bar glass" aria-hidden="true">
+          <strong className="tabular">{eta}</strong>
+          <span className="tabular">{formatTripTime(remainingS)}</span>
+          <span className="tabular dim">{formatDistance(remainingM, unit)}</span>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className="widget-map__bar glass" aria-hidden="true">
+      <Icon name="navigate" size="1.1em" />
+      <strong className="ellipsis">{destination.name}</strong>
+      {route && <span className="tabular dim">{formatTripTime(route.durationS)}</span>}
+      <span className="dim">{phase === 'routing' ? t('maps.nav.calculating') : ''}</span>
     </div>
   );
 }

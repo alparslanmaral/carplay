@@ -101,6 +101,8 @@ const GLYPHS: Record<string, string> = {
   sparkle: '<path class="f" d="m12 4 1.800 5.200L19 11l-5.200 1.800L12 18l-1.800-5.200L5 11l5.200-1.800z"/>',
   mic: '<rect x="9" y="4" width="6" height="10" rx="3"/><path d="M6 11.500a6 6 0 0 0 12 0M12 17.500V20"/>',
   tv: '<rect x="3.500" y="5.500" width="17" height="11" rx="2.500"/><path d="M9 20h6M12 16.500V20"/>',
+  engine:
+    '<path d="M6 10h3l1-2h5l1 2h2v3h1.500v4H18l-1.500 1.500H9L7 17H6z"/><path d="M10 8V6M14 8V6M4.500 12H3M4.500 15H3"/>',
   // turn-by-turn manoeuvres
   'maneuver-straight': '<path d="M12 20V5M6.500 10.500 12 5l5.500 5.500"/>',
   'maneuver-left': '<path d="M16 20v-7a3 3 0 0 0-3-3H6.500M10.500 5.500 6 10l4.500 4.500"/>',

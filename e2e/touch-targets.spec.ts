@@ -186,26 +186,68 @@ const pages: Page_[] = [
       favorites: [{ id: 'h', name: 'Home', lat: 41, lng: 29, kind: 'home' }],
     },
   },
+  { name: 'sport', url: '/?demo=1&screen=sport' },
+  {
+    name: 'sport (running, all options)',
+    url: '/?demo=1&screen=sport',
+    act: async (p) => {
+      await p.getByRole('button', { name: /Sport mode off/ }).click();
+      await p.getByRole('button', { name: 'Test sound' }).click();
+    },
+  },
+  {
+    name: 'dashboard while navigating',
+    url: '/?demo=1&screen=maps',
+    settings: {
+      navApp: 'drivedeck',
+      recents: [{ id: 'r1', name: 'Pier', lat: 41.0256, lng: 28.9741, ts: 1 }],
+    },
+    act: async (p) => {
+      await p.evaluate(() =>
+        (
+          window as unknown as { __dd: { router: { getState(): { reset(s: string, q: object): void } } } }
+        ).__dd.router
+          .getState()
+          .reset('maps', { dest: 'r1' }),
+      );
+      await p.getByRole('button', { name: /Navigate in DriveDeck/ }).click();
+      await p.getByRole('button', { name: 'Start' }).click();
+      await p.waitForSelector('.nav__banner');
+      await p.evaluate(() =>
+        (window as unknown as { __dd: { router: { getState(): { reset(s: string): void } } } }).__dd.router
+          .getState()
+          .reset('dashboard'),
+      );
+      await p.waitForSelector('.widget-map__nav');
+    },
+  },
   { name: 'settings index', url: '/?demo=1&screen=settings' },
-  ...['Appearance', 'Layout', 'Media', 'Maps', 'Driving and safety', 'Accounts and data', 'About'].map(
-    (section): Page_ => ({
-      name: `settings > ${section}`,
-      url: '/?demo=1&screen=settings',
-      settings: {
-        dimEnabled: true,
-        dimScheduleEnabled: true,
-        shortcuts: [{ id: 's1', name: 'Mom', icon: 'phone', url: 'tel:1' }],
-      },
-      act: async (p) => {
-        await p
-          .locator('.screen__body')
-          .getByRole('button', { name: new RegExp(section) })
-          .click();
-        await p.waitForTimeout(300);
-        if (section === 'Layout') await p.getByRole('button', { name: 'Add shortcut' }).click();
-      },
-    }),
-  ),
+  ...[
+    'Appearance',
+    'Layout',
+    'Media',
+    'Maps',
+    'Sport mode',
+    'Driving and safety',
+    'Accounts and data',
+    'About',
+  ].map((section): Page_ => ({
+    name: `settings > ${section}`,
+    url: '/?demo=1&screen=settings',
+    settings: {
+      dimEnabled: true,
+      dimScheduleEnabled: true,
+      shortcuts: [{ id: 's1', name: 'Mom', icon: 'phone', url: 'tel:1' }],
+    },
+    act: async (p) => {
+      await p
+        .locator('.screen__body')
+        .getByRole('button', { name: new RegExp(section) })
+        .click();
+      await p.waitForTimeout(300);
+      if (section === 'Layout') await p.getByRole('button', { name: 'Add shortcut' }).click();
+    },
+  })),
   { name: 'diagnostics', url: '/?demo=1&screen=diagnostics' },
   { name: 'limitations', url: '/?demo=1&screen=limitations' },
   { name: 'install guide', url: '/?demo=1&screen=install' },

@@ -40,6 +40,13 @@ export const BUILTIN_APPS: AppDef[] = [
     screen: 'destinations',
   },
   {
+    id: 'sport',
+    labelKey: 'sport',
+    icon: 'engine',
+    colors: ['#ff6a3d', '#b3200f'],
+    screen: 'sport',
+  },
+  {
     id: 'settings',
     labelKey: 'settings',
     icon: 'sliders',

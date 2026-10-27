@@ -48,14 +48,13 @@ test.describe('shell', () => {
     await seed(page);
     await page.goto('/');
     await waitForApp(page);
+    const countApps = () => page.locator('.home__cell .app-icon').count();
+    const before = await countApps();
     await page.getByRole('button', { name: 'Edit' }).click();
     await expect(page.locator('.home__cell[data-editing="true"]').first()).toBeVisible();
     await page.getByRole('button', { name: 'Hide' }).first().click();
     await page.getByRole('button', { name: 'Done' }).click();
-    const names = await page
-      .locator('.home__cell .app-icon')
-      .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-    expect(names.length).toBeLessThan(7);
+    expect(await countApps()).toBe(before - 1);
   });
 
   test('driving lock: typing is blocked above the speed threshold until a passenger confirms', async ({
@@ -186,7 +185,7 @@ test.describe('shell', () => {
     await seed(page);
     await page.goto('/?screen=limitations');
     await waitForApp(page);
-    await expect(page.getByText('Steering-wheel buttons')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Steering-wheel buttons' })).toBeVisible();
     expect(await page.locator('.limit').count()).toBeGreaterThanOrEqual(8);
     await page.goto('/?screen=diagnostics');
     await waitForApp(page);
