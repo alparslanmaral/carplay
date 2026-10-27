@@ -246,6 +246,57 @@ const scenes: Scene[] = [
       await page.waitForTimeout(1000);
     },
   },
+  { name: 'settings', url: '/?demo=1&screen=settings' },
+  {
+    name: 'settings-appearance',
+    url: '/?demo=1&screen=settings',
+    act: async (page) => {
+      await page.getByRole('button', { name: /Appearance/ }).click();
+      await page.waitForSelector('.set-preview');
+    },
+  },
+  {
+    name: 'settings-search',
+    url: '/?demo=1&screen=settings',
+    act: async (page) => {
+      await page.getByRole('textbox', { name: 'Search settings' }).fill('speed');
+      await page.waitForSelector('[data-item="speedAlert"]');
+    },
+  },
+  {
+    name: 'settings-driving',
+    url: '/?demo=1&screen=settings',
+    settings: { dimEnabled: true },
+    act: async (page) => {
+      await page.getByRole('button', { name: /Driving and safety/ }).click();
+      await page.waitForSelector('[data-item="lockSpeed"]');
+    },
+  },
+  { name: 'limitations', url: '/?demo=1&screen=limitations' },
+  { name: 'diagnostics', url: '/?demo=1&screen=diagnostics' },
+  { name: 'install', url: '/?demo=1&screen=install' },
+  {
+    name: 'onboarding',
+    url: '/?demo=1',
+    settings: { onboardingDone: false },
+    act: async (page) => {
+      await page.getByRole('heading', { name: 'Welcome to DriveDeck' }).waitFor();
+    },
+  },
+  {
+    name: 'onboarding-layout',
+    url: '/?demo=1',
+    settings: { onboardingDone: false },
+    act: async (page) => {
+      for (let i = 0; i < 3; i++) await page.getByRole('button', { name: /^(Next|Skip)$/ }).click();
+      await page.getByRole('heading', { name: 'Where should the side rail go?' }).waitFor();
+    },
+  },
+  {
+    name: 'home-simplified',
+    url: '/?demo=1',
+    settings: { simplified: true, theme: 'dark' },
+  },
   {
     name: 'spotify-connect',
     url: '/?screen=spotify',

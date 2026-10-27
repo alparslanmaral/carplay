@@ -114,6 +114,15 @@
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
 }
 
+/* simplified mode: fewer, bigger tiles */
+:root[data-simplified='true'] .home .app-tile {
+  --tile: calc(var(--icon-size) * var(--scale) * 1.5);
+}
+:root[data-simplified='true'] .home .app-icon__label {
+  font-size: calc(1rem * var(--text-scale));
+  max-width: none;
+}
+
 @keyframes wiggle {
   from {
     transform: rotate(-1.2deg);

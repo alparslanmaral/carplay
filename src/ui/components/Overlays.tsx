@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useToasts } from '../../core/toast';
 import { useDriving } from '../../core/driving';
 import { useSettings } from '../../core/settings';
+import { usePwaStore } from '../../core/pwa';
 import { resolveDialog, useDialogs } from '../../core/dialogs';
 import { Icon } from './Icon';
 
@@ -103,6 +104,30 @@ export function PassengerPrompt() {
         </div>
       </div>
     </>
+  );
+}
+
+/** "A new version is ready" prompt from the service worker. Applying it reloads the app. */
+export function UpdateBanner() {
+  const { t } = useTranslation();
+  const ready = usePwaStore((s) => s.updateReady);
+  const apply = usePwaStore((s) => s.applyUpdate);
+  if (!ready) return null;
+  return (
+    <div className="update-banner glass" role="status">
+      <Icon name="download" />
+      <span>{t('pwa.updateReady')}</span>
+      <button className="btn btn--primary btn--sm" onClick={() => void apply?.()}>
+        {t('pwa.reload')}
+      </button>
+      <button
+        className="btn btn--icon btn--ghost btn--sm"
+        aria-label={t('common.close')}
+        onClick={() => usePwaStore.setState({ updateReady: false })}
+      >
+        <Icon name="close" />
+      </button>
+    </div>
   );
 }
 

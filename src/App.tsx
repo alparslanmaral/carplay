@@ -3,9 +3,8 @@ import type { Entry } from './core/router';
 import { Chassis } from './ui/Chassis';
 import { ScreenHost } from './ui/ScreenHost';
 import { Wallpaper } from './ui/Wallpaper';
-import { DialogHost, PassengerPrompt, Toasts } from './ui/components/Overlays';
+import { DialogHost, PassengerPrompt, Toasts, UpdateBanner } from './ui/components/Overlays';
 import { Home } from './ui/screens/Home';
-import { Placeholder } from './ui/screens/Placeholder';
 import { useThemeEngine } from './ui/hooks/useThemeEngine';
 import { useMediaState } from './services/media/manager';
 import { NightDim } from './ui/NightDim';
@@ -19,6 +18,11 @@ const SpotifyScreen = lazy(() => import('./ui/screens/SpotifyScreen'));
 const MapsScreen = lazy(() => import('./ui/screens/MapsScreen'));
 const Destinations = lazy(() => import('./ui/screens/Destinations'));
 const YouTubeScreen = lazy(() => import('./ui/screens/YouTubeScreen'));
+const SettingsScreen = lazy(() => import('./ui/screens/SettingsScreen'));
+const Diagnostics = lazy(() => import('./ui/screens/Diagnostics'));
+const Limitations = lazy(() => import('./ui/screens/Limitations'));
+const InstallGuide = lazy(() => import('./ui/screens/InstallGuide'));
+const Onboarding = lazy(() => import('./ui/screens/Onboarding'));
 
 function renderEntry(entry: Entry): ReactNode {
   switch (entry.screen) {
@@ -36,8 +40,16 @@ function renderEntry(entry: Entry): ReactNode {
       return <Destinations />;
     case 'youtube':
       return <YouTubeScreen />;
-    default:
-      return <Placeholder screen={entry.screen} />;
+    case 'settings':
+      return <SettingsScreen params={entry.params} />;
+    case 'diagnostics':
+      return <Diagnostics />;
+    case 'limitations':
+      return <Limitations />;
+    case 'install':
+      return <InstallGuide />;
+    case 'onboarding':
+      return <Onboarding />;
   }
 }
 
@@ -63,6 +75,7 @@ export default function App() {
       <NightDim />
       <DialogHost />
       <PassengerPrompt />
+      <UpdateBanner />
       <NavChooser />
       <Toasts />
     </>

@@ -3,6 +3,7 @@ import { isScreenId, readPersistedStack, restoreStack, startRouterPersistence, u
 import { getSettings, useSettings } from './settings';
 import { startDrivingMonitor, useDriving } from './driving';
 import { setupI18n } from './i18n';
+import { settingsEnglish } from './settingsSchema';
 import { startGeoIfPermitted, useGeo } from '../services/maps/geolocation';
 import { DemoController } from '../services/media/demo';
 import {
@@ -24,7 +25,7 @@ import { log } from './logger';
  * Service controllers are registered here; Spotify/YouTube register themselves in later milestones' modules.
  */
 export function bootstrapApp(): void {
-  setupI18n();
+  setupI18n({ set: settingsEnglish() });
 
   const params = new URLSearchParams(location.search);
   if (params.get('demo') === '1') useSettings.getState().set('demoPlayer', true);

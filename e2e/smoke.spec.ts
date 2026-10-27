@@ -106,6 +106,95 @@ test.describe('shell', () => {
     await expect.poll(() => target).toBe('https://waze.com/ul?ll=40.9925,29.0245&navigate=yes');
   });
 
+  test('settings: theme and accent apply live and persist', async ({ page }) => {
+    await seed(page);
+    await mockExternal(page);
+    await page.goto('/?screen=settings');
+    await waitForApp(page);
+    await page.getByRole('button', { name: /Appearance/ }).click();
+    await page.getByRole('radio', { name: 'Light', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.getByRole('radio', { name: '#ff5c5c' }).click();
+    expect(await page.evaluate(() => document.documentElement.style.getPropertyValue('--accent'))).toBe(
+      '#ff5c5c',
+    );
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('dd.settings')!).state);
+    expect(stored.theme).toBe('light');
+    expect(stored.accent).toBe('#ff5c5c');
+    await page.reload();
+    await waitForApp(page);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
+  test('settings search finds items across sections and edits them', async ({ page }) => {
+    await seed(page);
+    await page.goto('/?screen=settings');
+    await waitForApp(page);
+    await page.getByRole('textbox', { name: 'Search settings' }).fill('speed alert');
+    const row = page.locator('[data-item="speedAlert"]');
+    await expect(row).toBeVisible();
+    await page.getByRole('textbox', { name: 'Search settings' }).fill('passenger');
+    await expect(page.locator('[data-item="passengerOverride"]')).toBeVisible();
+    await page.getByRole('switch', { name: 'Passenger override' }).click();
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('dd.settings')!).state);
+    expect(stored.passengerOverride).toBe(false);
+    await page.getByRole('textbox', { name: 'Search settings' }).fill('zzzzqq');
+    await expect(page.getByText('No settings match')).toBeVisible();
+  });
+
+  test('custom shortcut: validates the URL, then shows up on Home', async ({ page }) => {
+    await seed(page);
+    await page.goto('/?screen=settings');
+    await waitForApp(page);
+    await page.getByRole('button', { name: /Layout/ }).click();
+    await page.getByRole('button', { name: 'Add shortcut' }).click();
+    await page.getByRole('textbox', { name: 'Name' }).fill('Mom');
+    await page.getByRole('textbox', { name: 'Link or URL scheme' }).fill('javascript:alert(1)');
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.getByText('not allowed for safety')).toBeVisible();
+    await page.getByRole('textbox', { name: 'Link or URL scheme' }).fill('tel:+905551234567');
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.evaluate(() =>
+      (window as unknown as { __dd: { router: { getState(): { reset(s: string): void } } } }).__dd.router
+        .getState()
+        .reset('home'),
+    );
+    await waitForApp(page);
+    await expect(page.getByRole('button', { name: 'Mom' })).toBeVisible();
+  });
+
+  test('onboarding walks through every step and then opens Home', async ({ page }) => {
+    await seed(page, { onboardingDone: false });
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Welcome to DriveDeck' })).toBeVisible();
+    await expect(page.locator('.rail, .dock-btn')).toHaveCount(0); // no dock during onboarding
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page.getByRole('heading', { name: 'Allow location' })).toBeVisible();
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page.getByRole('heading', { name: 'Connect your music' })).toBeVisible();
+    await page.getByRole('button', { name: 'Skip' }).click();
+    await page.getByRole('radio', { name: /Right/ }).click();
+    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Start driving' }).click();
+    await expect(page.locator('.home')).toBeVisible();
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('dd.settings')!).state);
+    expect(stored.onboardingDone).toBe(true);
+    expect(stored.railPosition).toBe('right');
+  });
+
+  test('known limitations and diagnostics screens render real content', async ({ page }) => {
+    await seed(page);
+    await page.goto('/?screen=limitations');
+    await waitForApp(page);
+    await expect(page.getByText('Steering-wheel buttons')).toBeVisible();
+    expect(await page.locator('.limit').count()).toBeGreaterThanOrEqual(8);
+    await page.goto('/?screen=diagnostics');
+    await waitForApp(page);
+    await expect(page.getByText('Media Session', { exact: true })).toBeVisible();
+    await expect(page.getByText('Wake lock', { exact: true })).toBeVisible();
+    await expect(page.getByText('GPS accuracy')).toBeVisible();
+  });
+
   test('changing the accent setting updates the live design token', async ({ page }) => {
     await seed(page, { accent: '#ff5c5c' });
     await page.goto('/');

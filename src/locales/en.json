@@ -19,7 +19,8 @@
     "none": "None",
     "unknown": "Unknown",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "edit": "Edit"
   },
   "apps": {
     "home": "Home",
@@ -213,8 +214,259 @@
     "rateLimitedBody": "Too many requests. DriveDeck pauses for a moment and retries.",
     "errorTitle": "Spotify problem"
   },
-  "placeholder": {
-    "title": "Coming in a later milestone",
-    "body": "This screen is built in a later milestone of the plan (see PLAN.md)."
+  "settings": {
+    "search": "Search settings",
+    "noMatches": "No settings match “{{q}}”.",
+    "show": "Show",
+    "hide": "Hide",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "customColor": "Custom color",
+    "preview": "Live preview",
+    "recentsCleared": "Recent destinations cleared",
+    "sectionHint": {
+      "appearance": "Theme, colors, icons, wallpaper, rail",
+      "layout": "Dashboard, home pages, shortcuts",
+      "media": "Spotify, YouTube, Now Playing",
+      "maps": "Navigation app, map, search, favorites",
+      "driving": "Screen, typing lock, touch size, dimming",
+      "accounts": "Connect accounts, API keys, backup",
+      "about": "Version, known limitations, diagnostics"
+    },
+    "wallpaper": {
+      "solid": "Solid",
+      "gradient": "Gradient",
+      "art": "Album art",
+      "image": "My image",
+      "artHint": "Uses the current cover art, blurred, over the selected gradient. Falls back to the gradient when nothing plays.",
+      "choose": "Choose image",
+      "replace": "Replace image",
+      "dim": "Dim",
+      "blur": "Blur",
+      "failed": "Could not read that image"
+    },
+    "dock": {
+      "empty": "Nothing pinned. Home is always available.",
+      "add": "Pin up to {{max}} apps:",
+      "fitNote": "In portrait the dock shows as many pinned apps as fit next to Home and the player."
+    },
+    "homePages": {
+      "note": "Pages are filled automatically from the order above, based on the screen size and icon size."
+    },
+    "shortcuts": {
+      "add": "Add shortcut",
+      "name": "Name",
+      "url": "Link or URL scheme",
+      "icon": "Icon",
+      "errName": "Give the shortcut a name.",
+      "errEmpty": "Enter a link, for example tel:+905551234567 or https://example.com.",
+      "errInvalid": "That does not look like a valid link.",
+      "errBlocked": "That kind of link is not allowed for safety reasons.",
+      "removeTitle": "Remove “{{name}}”?"
+    },
+    "accounts": {
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "refreshes": "Refreshes automatically",
+      "accessToken": "Access token: {{when}}",
+      "noExpiry": "unknown",
+      "expired": "expired",
+      "expiresMinutes": "{{n}} min left",
+      "expiresHours": "{{n}} h left",
+      "disconnect": "Disconnect",
+      "copyCode": "Copy connection code",
+      "codeCopied": "Connection code copied",
+      "pasteCode": "Connection code",
+      "import": "Import",
+      "imported": "Spotify connected",
+      "codeHint": "Signed in using Safari instead? Copy the connection code there and paste it here. Safari and the home-screen app do not share logins.",
+      "iosNote": "YouTube access tokens last about an hour and are renewed silently. If the Google sign-in window cannot open inside the home-screen app, use search with an API key instead."
+    },
+    "data": {
+      "export": "Download settings",
+      "copy": "Copy settings",
+      "copied": "Settings copied",
+      "copyFailed": "Copying is not allowed here",
+      "includeKeys": "Include API keys in the export (keep the file private)",
+      "pastePlaceholder": "Paste exported settings JSON here",
+      "importPasted": "Import pasted",
+      "importFile": "Import from file",
+      "imported": "Imported {{n}} settings",
+      "reset": "Reset all settings",
+      "resetTitle": "Reset all settings?",
+      "resetBody": "Every setting returns to its default. Your Spotify and YouTube sign-ins are kept.",
+      "resetDone": "Settings reset",
+      "clearCaches": "Clear caches",
+      "cacheTitle": "Clear cached data?",
+      "cacheBody": "Playlists, search results and weather are fetched again. Settings are kept.",
+      "cacheDone": "Caches cleared"
+    }
+  },
+  "about": {
+    "limitations": "Known limitations",
+    "limitationsHint": "What iOS and the services do not allow",
+    "diagnostics": "Diagnostics",
+    "diagnosticsHint": "Media session, wake lock, tokens, GPS",
+    "install": "Install on iPhone",
+    "installHint": "Add DriveDeck to the Home Screen",
+    "attribution": "Maps: © OpenStreetMap contributors, © CARTO, Esri. Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
+  },
+  "diag": {
+    "media": "Media",
+    "device": "Device",
+    "gps": "Location",
+    "features": "Browser features",
+    "log": "Log",
+    "logEmpty": "Nothing logged yet.",
+    "logCopied": "Log copied",
+    "activeSource": "Active source",
+    "mediaSession": "Media Session",
+    "mediaSessionTitle": "Media Session title",
+    "ownedBy": "owned by",
+    "released": "released (not used)",
+    "unsupported": "not supported",
+    "spotifyStatus": "Spotify status",
+    "spotifyPoll": "Last Spotify poll",
+    "spotifyHttp": "Last Spotify request",
+    "spotifyRate": "Spotify rate limit",
+    "spotifyToken": "Spotify token",
+    "youtubeToken": "YouTube token",
+    "signedOut": "signed out",
+    "none": "none",
+    "wakeLock": "Wake lock",
+    "wakeLockError": "Wake lock error",
+    "pwaInstalled": "Installed (standalone)",
+    "serviceWorker": "Service worker",
+    "updateAvailable": "Update available",
+    "online": "Online",
+    "platform": "Platform",
+    "gpsStatus": "GPS status",
+    "gpsAccuracy": "GPS accuracy",
+    "gpsSpeed": "Speed",
+    "gpsFix": "Last fix",
+    "gpsHeading": "Heading",
+    "gpsError": "GPS error",
+    "drivingLock": "Driving lock",
+    "locked": "locked (moving)",
+    "parked": "parked",
+    "passenger": "passenger mode"
+  },
+  "limits": {
+    "intro": "DriveDeck is a web app running inside iOS. These are the things that platform, and the music and map services, do not allow. Each one has a workaround where one exists.",
+    "items": [
+      {
+        "icon": "car",
+        "title": "Steering-wheel buttons",
+        "body": "iOS sends Bluetooth media keys to whichever app owns “Now Playing”. A web app cannot intercept them. In Spotify mode the Spotify app plays the music, DriveDeck only remote-controls it and deliberately stays out of the way, so the buttons keep working natively. In YouTube mode DriveDeck registers the media keys itself, but iOS decides how they behave for a video inside a web page, so they may not always respond."
+      },
+      {
+        "icon": "music",
+        "title": "Spotify needs Premium and the Spotify app",
+        "body": "Playback control through the Spotify Web API only works for Premium accounts, and only while the Spotify app is running on the iPhone. If it is not, DriveDeck shows an “Open Spotify” prompt and retries the transfer automatically. The Web Playback SDK is not supported on iOS, so DriveDeck cannot play Spotify audio itself. Apps in Spotify's development mode are limited to a handful of users."
+      },
+      {
+        "icon": "volume",
+        "title": "Volume",
+        "body": "Spotify on iPhone does not allow remote volume changes, so the slider is hidden there. Use the car or iPhone volume buttons."
+      },
+      {
+        "icon": "smartphone",
+        "title": "What iOS web apps cannot do",
+        "body": "No orientation lock (rotate the phone or pick a layout in Settings), no Fullscreen API (the home-screen app already runs without browser bars), no guaranteed audio when the app is in the background or the screen is locked, and no Battery or Vibration API, so haptics and battery features are hidden. DriveDeck keeps the screen awake with the Wake Lock API where iOS allows it."
+      },
+      {
+        "icon": "navigate",
+        "title": "Turn-by-turn navigation",
+        "body": "Apple Maps, Google Maps and Waze cannot be embedded in a web app. DriveDeck shows a map preview, searches for places and hands the destination over to the navigation app you choose. When you come back, DriveDeck restores the screen you left."
+      },
+      {
+        "icon": "video",
+        "title": "YouTube",
+        "body": "Videos play in the official YouTube player, which stays visible and unmodified, and only plays while DriveDeck is open on screen. Audio cannot be extracted or played in the background. By default video is blocked while the car is moving; a passenger can confirm to override it. Search uses a daily API quota, so results are cached."
+      },
+      {
+        "icon": "key",
+        "title": "Signing in inside the home-screen app",
+        "body": "iOS keeps Safari and the installed app separate, and OAuth pop-ups or redirects inside an installed web app are sometimes blocked or return to the wrong place. If Spotify sign-in does not come back to the app, sign in using Safari, copy the connection code from Settings > Accounts and paste it in the installed app. Google sign-in tokens last about an hour."
+      },
+      {
+        "icon": "crosshair",
+        "title": "Location, speed and the driving lock",
+        "body": "Speed comes from GPS, which can be late or lost in tunnels and garages. The lock stays on when the signal is missing. The driving lock is a convenience, not a certified safety system, and it cannot tell who is holding the phone: the passenger confirmation relies on your honesty. Never use the touch screen in ways the law of your country forbids while driving."
+      },
+      {
+        "icon": "map",
+        "title": "Maps and search data",
+        "body": "The default map uses OpenStreetMap-based tiles from CARTO (satellite: Esri). Heavy use may need your own tile provider. Search uses Photon or Nominatim; Nominatim does not allow search-as-you-type. Google Maps or Apple MapKit need your own key or token and the traffic layer is only available with them. Only tiles you already viewed are available offline."
+      },
+      {
+        "icon": "info",
+        "title": "Brands",
+        "body": "DriveDeck is an independent app. It is not affiliated with Apple, Spotify or Google, does not use their logos, and its icons are original. The name CarPlay is not used."
+      }
+    ]
+  },
+  "install": {
+    "installed": "Installed",
+    "installedBody": "DriveDeck is running as a home-screen app.",
+    "notInstalled": "Not installed yet",
+    "iosBody": "Open DriveDeck in Safari, then add it to your Home Screen. It runs fullscreen and works offline.",
+    "otherBody": "On iPhone, open this page in Safari to install it. Other browsers can install it from their menu.",
+    "steps": [
+      {
+        "icon": "external",
+        "title": "Open in Safari",
+        "body": "Installing only works from Safari, not from in-app browsers."
+      },
+      {
+        "icon": "share",
+        "title": "Tap Share",
+        "body": "The square-with-arrow button at the bottom of Safari."
+      },
+      {
+        "icon": "plus",
+        "title": "Add to Home Screen",
+        "body": "Scroll down in the share sheet and tap Add to Home Screen, then Add."
+      },
+      {
+        "icon": "gauge",
+        "title": "Open from the Home Screen",
+        "body": "Always launch DriveDeck from its icon so it runs without browser bars. Allow location “While Using the App”."
+      }
+    ],
+    "tipsTitle": "Tips for the car",
+    "tips": [
+      "Set Auto-Lock to Never while driving (Settings > Display & Brightness), or keep DriveDeck open so it can hold the screen awake.",
+      "Turn on Rotation Lock in Control Center if the layout should not flip while the phone is in a mount.",
+      "Keep the phone charging and out of direct sun; GPS plus a bright screen runs it hot.",
+      "Start Spotify once before you drive so DriveDeck can find the device."
+    ]
+  },
+  "onboarding": {
+    "title": "Welcome",
+    "welcome": "Welcome to DriveDeck",
+    "welcomeBody": "A glanceable dashboard for your iPhone in the car: maps hand-off, a music remote and big, simple controls.",
+    "installTitle": "Install it first",
+    "locationTitle": "Allow location",
+    "locationBody": "DriveDeck uses your location for the map, your speed, the driving lock and local weather. It stays on your device and is never uploaded.",
+    "allowLocation": "Allow location",
+    "locationOn": "Location is on",
+    "accountsTitle": "Connect your music",
+    "accountsBody": "Connect Spotify to control the Spotify app, and Google to browse your YouTube playlists. You can do this later in Settings.",
+    "spotifyConnected": "Spotify connected",
+    "youtubeConnected": "YouTube connected",
+    "notConfiguredHint": "An account button is greyed out when its Client ID has not been added yet (see the README).",
+    "skipHint": "Spotify needs Premium and the Spotify app.",
+    "layoutTitle": "Where should the side rail go?",
+    "layoutBody": "In landscape the rail holds the clock, Home, your pinned apps and the player. Pick the side that suits your mount.",
+    "doneTitle": "You are ready",
+    "doneBody": "Everything can be changed later in Settings. Check Known limitations under About to see what iOS does not allow.",
+    "next": "Next",
+    "skip": "Skip",
+    "start": "Start driving"
+  },
+  "pwa": {
+    "updateReady": "A new version of DriveDeck is ready.",
+    "reload": "Reload"
   }
 }

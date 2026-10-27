@@ -11,8 +11,11 @@ import './styles/dashboard.css';
 import './styles/nowplaying.css';
 import './styles/maps.css';
 import './styles/youtube.css';
+import './styles/settings.css';
+import { registerPwa } from './core/pwa';
 
 bootstrapApp();
+void registerPwa();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

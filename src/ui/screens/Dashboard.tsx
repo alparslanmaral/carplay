@@ -25,7 +25,11 @@ export default function Dashboard() {
   const ids = useSettings((s) => s.dashboardWidgets);
   const split = useSettings((s) => s.dashboardSplit);
   // Ids without an implementation (for example a widget removed in a later version) are skipped.
-  const widgets = ids.map((id) => WIDGET_MAP.get(id)).filter((w): w is WidgetDef => !!w);
+  const simplified = useSettings((s) => s.simplified);
+  const widgets = ids
+    .filter((id) => !simplified || ['map', 'nowplaying', 'speed'].includes(id))
+    .map((id) => WIDGET_MAP.get(id))
+    .filter((w): w is WidgetDef => !!w);
   const map = widgets.find((w) => w.id === 'map');
   const rest = widgets.filter((w) => w.id !== 'map');
 

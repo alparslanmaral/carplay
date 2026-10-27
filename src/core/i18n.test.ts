@@ -19,7 +19,8 @@ function has(obj: unknown, path: string): boolean {
       cur = (cur as Record<string, unknown>)[part];
     else return false;
   }
-  return typeof cur === 'string';
+  // list-valued resources (read with returnObjects) are valid too
+  return typeof cur === 'string' || Array.isArray(cur);
 }
 
 describe('i18n coverage', () => {

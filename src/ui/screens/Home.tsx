@@ -16,6 +16,9 @@ interface Drag {
 }
 
 const LONG_PRESS_MS = 550;
+/** Apps kept in simplified mode (Settings stays so the mode can be switched off again). */
+export const SIMPLIFIED_APPS = ['maps', 'spotify', 'youtube', 'nowplaying', 'settings'];
+export const SIMPLIFIED_SCALE = 1.5;
 
 /** Number of columns/rows that fit the pager, derived from the measured area and the icon size. */
 export function gridCapacity(
@@ -51,10 +54,13 @@ export function Home() {
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClick = useRef(false);
 
-  const apps = useMemo(
-    () => resolveHomeApps(order, hidden, shortcuts, { includeHidden: editing }),
-    [order, hidden, shortcuts, editing],
-  );
+  const simplified = useSettings((s) => s.simplified);
+
+  const apps = useMemo(() => {
+    const all = resolveHomeApps(order, hidden, shortcuts, { includeHidden: editing });
+    // Simplified mode: only the essentials, in big tiles, and no editing.
+    return simplified ? all.filter((a) => SIMPLIFIED_APPS.includes(a.id)) : all;
+  }, [order, hidden, shortcuts, editing, simplified]);
 
   useLayoutEffect(() => {
     const el = areaRef.current;
@@ -67,7 +73,7 @@ export function Home() {
   }, []);
 
   const { cols, rows } = gridCapacity(size.w, size.h, {
-    iconSize: (iconSize * scale) / 100,
+    iconSize: ((iconSize * scale) / 100) * (simplified ? SIMPLIFIED_SCALE : 1),
     labels,
     columns,
   });
@@ -256,14 +262,16 @@ export function Home() {
               />
             ))}
         </div>
-        <button
-          className={`btn btn--sm ${editing ? 'btn--primary' : 'btn--ghost'} home__edit`}
-          onClick={() => setEditing((v) => !v)}
-          aria-pressed={editing}
-        >
-          <Icon name={editing ? 'check' : 'pencil'} size="1.1em" />
-          {editing ? t('common.done') : t('home.edit')}
-        </button>
+        {!simplified && (
+          <button
+            className={`btn btn--sm ${editing ? 'btn--primary' : 'btn--ghost'} home__edit`}
+            onClick={() => setEditing((v) => !v)}
+            aria-pressed={editing}
+          >
+            <Icon name={editing ? 'check' : 'pencil'} size="1.1em" />
+            {editing ? t('common.done') : t('home.edit')}
+          </button>
+        )}
       </div>
 
       {drag && dragApp && (

@@ -119,8 +119,17 @@ function Rail({ variant }: { variant: 'rail' | 'bar' | 'dock' }) {
 export function Chassis({ children }: { children: ReactNode }) {
   const layout = useLayout();
   const rail = useSettings((s) => s.railPosition);
+  const onboarding = useRouter((s) => s.stack[s.stack.length - 1]!.screen === 'onboarding');
   const position = layout === 'portrait' ? 'bottom' : rail;
   const variant = layout === 'portrait' ? 'dock' : rail === 'bottom' ? 'bar' : 'rail';
+  // First-run onboarding gets the whole screen: no dock to wander off with.
+  if (onboarding) {
+    return (
+      <div className="chassis" data-layout={layout} data-bare="true">
+        <main className="chassis__main">{children}</main>
+      </div>
+    );
+  }
   return (
     <div className="chassis" data-layout={layout} data-rail={position}>
       {layout === 'portrait' && <StatusBar />}
