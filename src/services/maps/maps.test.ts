@@ -13,7 +13,7 @@ import {
 } from './geocode';
 import { getFavorite, removeFavorite, renameFavorite, saveFavorite } from './places';
 import { useNavChooser, navigateTo } from './handoff';
-import { TILE_SETS, buildStyle } from './adapters/maplibre';
+import { TILE_SETS, VECTOR_STYLES, buildStyle, styleFor } from './adapters/maplibre';
 
 vi.mock('../../ui/launch', () => ({ openExternal: vi.fn() }));
 import { openExternal } from '../../ui/launch';
@@ -40,11 +40,14 @@ describe('map style', () => {
     expect(resolveMapStyle('auto', 'light')).toBe('light');
     expect(resolveMapStyle('satellite', 'dark')).toBe('satellite');
   });
-  it('every style has attribution (required by the tile providers)', () => {
-    for (const set of Object.values(TILE_SETS)) expect(set.attribution.length).toBeGreaterThan(10);
-    expect(TILE_SETS.light.attribution).toContain('OpenStreetMap');
-    const style = buildStyle('dark');
-    expect(style.layers[0]).toMatchObject({ type: 'raster' });
+  it('satellite carries the imagery attribution; road maps are key-free vector styles', () => {
+    expect(TILE_SETS.satellite.attribution).toContain('Esri');
+    expect(buildStyle('satellite').layers[0]).toMatchObject({ type: 'raster' });
+    expect(styleFor('satellite')).toMatchObject({ version: 8 });
+    for (const kind of ['light', 'dark'] as const) {
+      expect(styleFor(kind)).toBe(VECTOR_STYLES[kind]);
+      expect(VECTOR_STYLES[kind]).toMatch(/^https:\/\/tiles\.versatiles\.org\/.+style\.json$/);
+    }
   });
 });
 

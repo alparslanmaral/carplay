@@ -5,7 +5,9 @@
   background: var(--bg);
   overflow: hidden;
 }
-.mapcanvas__host {
+/* Two classes on purpose: maplibre-gl.css is loaded lazily, after ours, and its `.maplibregl-map { position: relative }`
+   would otherwise win and collapse the host to the canvas default of 300px. */
+.mapcanvas > .mapcanvas__host {
   position: absolute;
   inset: 0;
 }

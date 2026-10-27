@@ -52,7 +52,7 @@ The same list is in the app under **Settings > About > Known limitations**. Thes
 5. **YouTube:** the official IFrame Player API only, kept visible and unmodified (at least 200 px); it only plays while DriveDeck is on screen; no audio extraction. "YouTube while moving" is **Blocked** by default (pause + overlay), with a passenger override that needs confirmation. Search costs 100 quota units, so results are cached.
 6. **Signing in inside the home-screen app:** iOS keeps Safari and the installed app in separate storage and OAuth redirects/pop-ups inside an installed web app are sometimes blocked. Fallback for Spotify: sign in via Safari, copy the **connection code** from Settings > Accounts and paste it in the installed app (only the refresh token travels). Google tokens last about an hour and are renewed silently.
 7. **Location and the driving lock:** speed comes from GPS and can be late or missing in tunnels (the lock stays on without a signal). The lock is a convenience, not a certified safety system, and cannot know who is holding the phone.
-8. **Map data:** default tiles are CARTO (OpenStreetMap data), satellite is Esri. Heavy use may call for your own tile provider. Nominatim forbids search-as-you-type, so it is submit-only. Google Maps / MapKit and the traffic layer need your own key/token. Only tiles you already viewed work offline.
+8. **Map data:** default road maps are VersaTiles vector styles (OpenStreetMap data, no key), satellite is Esri. Heavy use may call for your own tile provider. Nominatim forbids search-as-you-type, so it is submit-only. Google Maps / MapKit and the traffic layer need your own key/token. Only tiles you already viewed work offline.
 
 ## Quick start (development)
 
@@ -199,9 +199,9 @@ External services (Spotify, YouTube, tiles, search, weather) are stubbed in the 
 
 ## Privacy and data
 
-Everything stays on the phone: settings, favorites, recents, tokens and API keys live in `localStorage`; there is no DriveDeck backend. Requests go directly from the phone to: Spotify, Google / YouTube, CARTO / Esri tile servers, Photon or Nominatim (search text and your approximate position for ranking), Open-Meteo (rounded coordinates), and optionally Google Maps / Apple MapKit. Location is used only on the device and in those requests.
+Everything stays on the phone: settings, favorites, recents, tokens and API keys live in `localStorage`; there is no DriveDeck backend. Requests go directly from the phone to: Spotify, Google / YouTube, VersaTiles / Esri map servers, Photon or Nominatim (search text and your approximate position for ranking), Open-Meteo (rounded coordinates), and optionally Google Maps / Apple MapKit. Location is used only on the device and in those requests.
 
-Attribution: Maps (c) OpenStreetMap contributors, (c) CARTO, Esri. Search by Photon / Nominatim. Weather by Open-Meteo. Spotify and YouTube are trademarks of their owners; Spotify content links back to Spotify ("Open in Spotify"), Spotify artwork is never cropped into a vinyl circle, and the YouTube player is never altered.
+Attribution: Maps (c) OpenStreetMap contributors, VersaTiles, Esri. Search by Photon / Nominatim. Weather by Open-Meteo. Spotify and YouTube are trademarks of their owners; Spotify content links back to Spotify ("Open in Spotify"), Spotify artwork is never cropped into a vinyl circle, and the YouTube player is never altered.
 
 ## Troubleshooting
 

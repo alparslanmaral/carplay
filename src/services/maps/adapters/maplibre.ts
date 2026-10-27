@@ -16,25 +16,18 @@ interface TileSet {
   maxzoom: number;
 }
 
-const CARTO_ATTR =
-  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>';
+/**
+ * Road maps are VersaTiles vector styles (OpenStreetMap data, free, no API key). CARTO's free raster tiles
+ * started returning "API KEY REQUIRED" watermarks, so they are no longer used. Each style brings its own
+ * tiles, glyphs, sprite and attribution.
+ */
+export const VECTOR_STYLES: Record<'light' | 'dark', string> = {
+  light: 'https://tiles.versatiles.org/assets/styles/colorful/style.json',
+  dark: 'https://tiles.versatiles.org/assets/styles/eclipse/style.json',
+};
 
-/** Raster basemaps built on OpenStreetMap data. */
-export const TILE_SETS: Record<MapStyleKind, TileSet> = {
-  light: {
-    tiles: ['a', 'b', 'c', 'd'].map(
-      (s) => `https://${s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png`,
-    ),
-    attribution: CARTO_ATTR,
-    tileSize: 256,
-    maxzoom: 19,
-  },
-  dark: {
-    tiles: ['a', 'b', 'c', 'd'].map((s) => `https://${s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png`),
-    attribution: CARTO_ATTR,
-    tileSize: 256,
-    maxzoom: 19,
-  },
+/** Raster imagery for the satellite view. */
+export const TILE_SETS: Record<'satellite', TileSet> = {
   satellite: {
     tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
     attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
@@ -43,7 +36,7 @@ export const TILE_SETS: Record<MapStyleKind, TileSet> = {
   },
 };
 
-export function buildStyle(kind: MapStyleKind): StyleSpecification {
+export function buildStyle(kind: 'satellite'): StyleSpecification {
   const set = TILE_SETS[kind];
   return {
     version: 8,
@@ -58,6 +51,11 @@ export function buildStyle(kind: MapStyleKind): StyleSpecification {
     },
     layers: [{ id: 'base', type: 'raster', source: 'base' }],
   };
+}
+
+/** A style URL for the vector road maps, an inline raster style for satellite. */
+export function styleFor(kind: MapStyleKind): string | StyleSpecification {
+  return kind === 'satellite' ? buildStyle(kind) : VECTOR_STYLES[kind];
 }
 
 function userElement(accent: string): { el: HTMLElement; arrow: HTMLElement } {
@@ -76,11 +74,18 @@ export async function createMapLibreAdapter(
   container: HTMLElement,
   opts: MapCreateOptions,
 ): Promise<MapAdapter> {
-  const [maplibregl] = await Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')]);
+  const [maplibregl, { default: workerUrl }] = await Promise.all([
+    import('maplibre-gl'),
+    import('maplibre-gl/dist/maplibre-gl-worker.mjs?url'),
+    import('maplibre-gl/dist/maplibre-gl.css'),
+  ]);
+  // v6 loads its worker from a separate file that the bundler does not emit on its own; without this
+  // the production build asks for /assets/maplibre-gl-worker.mjs, gets a 404 and the map stays blank.
+  maplibregl.setWorkerUrl(workerUrl);
   const center = opts.center ?? { lat: 30, lng: 20 };
   const map: MlMap = new maplibregl.Map({
     container,
-    style: buildStyle(opts.style),
+    style: styleFor(opts.style),
     center: [center.lng, center.lat],
     zoom: opts.center ? opts.zoom : 2,
     attributionControl: { compact: true },
@@ -116,7 +121,7 @@ export async function createMapLibreAdapter(
 
   return {
     kind: 'maplibre',
-    setStyle: (style) => map.setStyle(buildStyle(style)),
+    setStyle: (style) => map.setStyle(styleFor(style)),
     // MapLibre raster basemaps carry no traffic data; the setting is documented as "where supported".
     setTraffic: () => undefined,
     setUser(user: UserMarker | null) {

@@ -309,7 +309,7 @@
     "diagnosticsHint": "Media session, wake lock, tokens, GPS",
     "install": "Install on iPhone",
     "installHint": "Add DriveDeck to the Home Screen",
-    "attribution": "Maps: © OpenStreetMap contributors, © CARTO, Esri. Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
+    "attribution": "Maps: © OpenStreetMap contributors, VersaTiles, Esri. Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
   },
   "diag": {
     "media": "Media",
@@ -397,7 +397,7 @@
       {
         "icon": "map",
         "title": "Maps and search data",
-        "body": "The default map uses OpenStreetMap-based tiles from CARTO (satellite: Esri). Heavy use may need your own tile provider. Search uses Photon or Nominatim; Nominatim does not allow search-as-you-type. Google Maps or Apple MapKit need your own key or token and the traffic layer is only available with them. Only tiles you already viewed are available offline."
+        "body": "The default map uses OpenStreetMap data served by VersaTiles (satellite: Esri). Heavy use may need your own tile provider. Search uses Photon or Nominatim; Nominatim does not allow search-as-you-type. Google Maps or Apple MapKit need your own key or token and the traffic layer is only available with them. Only tiles you already viewed are available offline."
       },
       {
         "icon": "info",

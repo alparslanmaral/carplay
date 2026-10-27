@@ -43,7 +43,7 @@ export default defineConfig({
           {
             // Map tiles: cache what was already viewed so a tunnel does not blank the map.
             urlPattern:
-              /^https:\/\/(.*\.)?(basemaps\.cartocdn\.com|tile\.openstreetmap\.org|arcgisonline\.com)\/.*/i,
+              /^https:\/\/(.*\.)?(tiles\.versatiles\.org|tile\.openstreetmap\.org|arcgisonline\.com)\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'map-tiles',

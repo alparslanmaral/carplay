@@ -106,12 +106,31 @@ export function fakeTile(z: number, x: number, y: number, dark: boolean): Buffer
 }
 
 export async function mockMaps(page: Page): Promise<void> {
-  await page.route(/(basemaps\.cartocdn\.com|arcgisonline\.com)/, (route) => {
+  // The vector road styles are replaced by a small raster style that points at fake tiles on the same host.
+  await page.route(/tiles\.versatiles\.org\/assets\/styles\/(\w+)\/style\.json/, (route) => {
+    const dark = route.request().url().includes('/eclipse/');
+    return route.fulfill({
+      json: {
+        version: 8,
+        sources: {
+          base: {
+            type: 'raster',
+            tiles: [`https://tiles.versatiles.org/mock/${dark ? 'dark' : 'light'}/{z}/{x}/{y}.png`],
+            tileSize: 256,
+            maxzoom: 19,
+            attribution: '© OpenStreetMap contributors',
+          },
+        },
+        layers: [{ id: 'base', type: 'raster', source: 'base' }],
+      },
+    });
+  });
+  await page.route(/(tiles\.versatiles\.org\/mock|arcgisonline\.com)/, (route) => {
     const url = route.request().url();
     const m = /\/(\d+)\/(\d+)\/(\d+)(?:@2x)?\.png|\/(\d+)\/(\d+)\/(\d+)$/.exec(url);
     const nums = (m ?? []).slice(1).filter(Boolean).map(Number);
     const [z = 0, x = 0, y = 0] = nums;
-    return route.fulfill({ contentType: 'image/png', body: fakeTile(z, x, y, url.includes('dark_all')) });
+    return route.fulfill({ contentType: 'image/png', body: fakeTile(z, x, y, url.includes('/dark/')) });
   });
   await page.route('https://photon.komoot.io/api/**', (route) =>
     route.fulfill({
