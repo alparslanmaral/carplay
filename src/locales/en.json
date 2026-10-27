@@ -136,7 +136,24 @@
       "custom": "Favorite"
     },
     "locationDenied": "Location is blocked. Allow it for DriveDeck in iOS Settings > Privacy > Location Services to see yourself on the map.",
-    "providerFallback": "Map provider unavailable ({{reason}}). Using OpenStreetMap."
+    "providerFallback": "Map provider unavailable ({{reason}}). Using OpenStreetMap.",
+    "nav": {
+      "calculating": "Calculating route…",
+      "start": "Start",
+      "retry": "Try again",
+      "end": "End",
+      "done": "Done",
+      "arrives": "arrive {{time}}",
+      "arrived": "You have arrived",
+      "rerouting": "Rerouting…",
+      "avoidTolls": "Avoid tolls",
+      "avoidHighways": "Avoid motorways",
+      "hasToll": "This route still includes toll roads",
+      "noToll": "No toll roads",
+      "hasFerry": "Includes a ferry",
+      "voiceOn": "Turn voice guidance on",
+      "voiceOff": "Turn voice guidance off"
+    }
   },
   "youtube": {
     "library": "YouTube",
@@ -309,7 +326,7 @@
     "diagnosticsHint": "Media session, wake lock, tokens, GPS",
     "install": "Install on iPhone",
     "installHint": "Add DriveDeck to the Home Screen",
-    "attribution": "Maps: © OpenStreetMap contributors, VersaTiles, Esri. Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
+    "attribution": "Maps: © OpenStreetMap contributors, VersaTiles, Esri. Routes: Valhalla (FOSSGIS). Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
   },
   "diag": {
     "media": "Media",
@@ -377,7 +394,7 @@
       {
         "icon": "navigate",
         "title": "Turn-by-turn navigation",
-        "body": "Apple Maps, Google Maps and Waze cannot be embedded in a web app. DriveDeck shows a map preview, searches for places and hands the destination over to the navigation app you choose. When you come back, DriveDeck restores the screen you left."
+        "body": "Apple Maps, Google Maps and Waze cannot be embedded in a web app, so DriveDeck hands the destination over to the one you choose and restores the screen when you come back. DriveDeck can also guide you itself with open-source routing (OpenStreetMap data, optional toll and motorway avoidance), but only while it is open on screen: iOS stops GPS for web apps in the background and gives them no live traffic, speed limits or lane guidance. Spoken directions use the iPhone voice and can briefly interrupt Spotify. For long or unfamiliar trips, use a dedicated navigation app."
       },
       {
         "icon": "video",

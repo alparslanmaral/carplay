@@ -131,6 +131,45 @@ const pages: Page_[] = [
     },
   },
   {
+    name: 'maps route preview',
+    url: '/?demo=1&screen=maps',
+    settings: {
+      navApp: 'drivedeck',
+      recents: [{ id: 'r1', name: 'Pier', lat: 41.0256, lng: 28.9741, ts: 1 }],
+    },
+    act: async (p) => {
+      await p.evaluate(() =>
+        (
+          window as unknown as { __dd: { router: { getState(): { reset(s: string, q: object): void } } } }
+        ).__dd.router
+          .getState()
+          .reset('maps', { dest: 'r1' }),
+      );
+      await p.getByRole('button', { name: /Navigate in DriveDeck/ }).click();
+      await p.getByRole('button', { name: 'Start' }).waitFor();
+    },
+  },
+  {
+    name: 'maps guidance',
+    url: '/?demo=1&screen=maps',
+    settings: {
+      navApp: 'drivedeck',
+      recents: [{ id: 'r1', name: 'Pier', lat: 41.0256, lng: 28.9741, ts: 1 }],
+    },
+    act: async (p) => {
+      await p.evaluate(() =>
+        (
+          window as unknown as { __dd: { router: { getState(): { reset(s: string, q: object): void } } } }
+        ).__dd.router
+          .getState()
+          .reset('maps', { dest: 'r1' }),
+      );
+      await p.getByRole('button', { name: /Navigate in DriveDeck/ }).click();
+      await p.getByRole('button', { name: 'Start' }).click();
+      await p.waitForSelector('.nav__banner');
+    },
+  },
+  {
     name: 'maps search panel',
     url: '/?demo=1&screen=maps',
     settings: { recents: [{ id: 'r1', name: 'Pier', lat: 40.99, lng: 29.02, ts: 1 }] },

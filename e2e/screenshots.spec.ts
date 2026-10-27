@@ -54,6 +54,18 @@ const ytSettings = {
   googleClientId: 'CLIENT',
 };
 
+async function openRouteSheet(page: Page): Promise<void> {
+  await page.evaluate(() =>
+    (
+      window as unknown as { __dd: { router: { getState(): { reset(s: string, p: object): void } } } }
+    ).__dd.router
+      .getState()
+      .reset('maps', { dest: 'r1' }),
+  );
+  await page.getByRole('button', { name: /Navigate in DriveDeck/ }).click();
+  await page.getByRole('button', { name: 'Start' }).waitFor();
+}
+
 const scenes: Scene[] = [
   { name: 'home', url: '/?demo=1' },
   {
@@ -134,6 +146,26 @@ const scenes: Scene[] = [
       );
       await page.waitForSelector('.maps__sheet');
       await page.waitForTimeout(900);
+    },
+  },
+  {
+    name: 'maps-route',
+    url: '/?demo=1&screen=home',
+    settings: { recents: places, favorites, navApp: 'drivedeck', avoidTolls: true },
+    act: async (page) => {
+      await openRouteSheet(page);
+      await page.waitForTimeout(1200);
+    },
+  },
+  {
+    name: 'maps-guidance',
+    url: '/?demo=1&screen=home',
+    settings: { recents: places, favorites, navApp: 'drivedeck', avoidTolls: true },
+    act: async (page) => {
+      await openRouteSheet(page);
+      await page.getByRole('button', { name: 'Start' }).click();
+      await page.waitForSelector('.nav__banner');
+      await page.waitForTimeout(1200);
     },
   },
   {

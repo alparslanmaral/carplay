@@ -14,6 +14,7 @@ import {
   type MapAdapter,
 } from '../../services/maps/adapter';
 import { useGeo } from '../../services/maps/geolocation';
+import { bounds } from '../../services/maps/routeMath';
 import { useNow } from '../hooks/useClock';
 
 export interface MapCanvasProps {
@@ -27,6 +28,23 @@ export interface MapCanvasProps {
   /** Increment to jump back to the user and resume following. */
   recenterNonce?: number;
   onFollowChange?: (following: boolean) => void;
+  /** Planned route drawn as a line; the camera fits it while previewing. */
+  route?: LatLngLike[] | null;
+  /** Turn-by-turn is running: keep following the user instead of framing the whole trip. */
+  guiding?: boolean;
+}
+
+/** Room taken up by the Maps screen's search bar and bottom sheet, so a fitted route stays clear of them. */
+function overlayInsets(host: HTMLElement | null): { top: number; bottom: number } | undefined {
+  const screen = host?.closest('.maps');
+  if (!host || !screen) return undefined;
+  const area = host.getBoundingClientRect();
+  const top = screen.querySelector('.maps__top')?.getBoundingClientRect();
+  const bottom = screen.querySelector('.maps__bottom')?.getBoundingClientRect();
+  return {
+    top: top ? Math.max(0, top.bottom - area.top) : 0,
+    bottom: bottom ? Math.max(0, area.bottom - bottom.top) : 0,
+  };
 }
 
 /**
@@ -41,6 +59,8 @@ export function MapCanvas({
   onActivate,
   recenterNonce = 0,
   onFollowChange,
+  route = null,
+  guiding = false,
 }: MapCanvasProps) {
   const { t } = useTranslation();
   const host = useRef<HTMLDivElement>(null);
@@ -155,16 +175,40 @@ export function MapCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, lat, lng, heading, accuracy]);
 
-  // A destination picked from search: show both ends of the trip and stop following.
+  useEffect(() => {
+    if (ready) adapter.current?.setRoute(route);
+  }, [ready, route]);
+
+  // Starting guidance hands the camera back to the user's position (a hand-drag afterwards still wins).
+  useEffect(() => {
+    if (!guiding) return;
+    setFollowing(true);
+    const g = useGeo.getState();
+    if (!ready || g.lat === null || g.lng === null) return;
+    const s = useSettings.getState();
+    adapter.current?.follow({
+      lat: g.lat,
+      lng: g.lng,
+      zoom: s.autoZoom ? zoomForSpeed(g.speedKmh) : undefined,
+      bearing: s.mapOrientation === 'heading' ? (g.heading ?? undefined) : 0,
+    });
+    // only when guidance starts (or the map becomes ready), not on every position update
+  }, [guiding, ready]);
+
+  // A destination picked from search: show both ends of the trip (or the whole route) and stop following.
+  // While guiding the camera stays on the user instead.
   useEffect(() => {
     const a = adapter.current;
     if (!ready || !a || !destination) return;
+    if (guiding) return;
     setFollowing(false);
-    const points: LatLngLike[] = [destination];
+    const points: LatLngLike[] = route?.length ? bounds(route) : [destination];
     const g = useGeo.getState();
-    if (g.lat !== null && g.lng !== null) points.push({ lat: g.lat, lng: g.lng });
-    a.fitTo(points);
-  }, [ready, destination]);
+    if (!route?.length && g.lat !== null && g.lng !== null) points.push({ lat: g.lat, lng: g.lng });
+    // The sheet and search bar are laid over the map; wait a frame so their final size is known.
+    const frame = requestAnimationFrame(() => a.fitTo(points, overlayInsets(host.current)));
+    return () => cancelAnimationFrame(frame);
+  }, [ready, destination, route, guiding]);
 
   useEffect(() => onFollowChange?.(following), [following, onFollowChange]);
 

@@ -1,4 +1,4 @@
-import type { Map as MlMap, Marker, StyleSpecification } from 'maplibre-gl';
+import type { GeoJSONSource, Map as MlMap, Marker, StyleSpecification } from 'maplibre-gl';
 import type {
   FollowTarget,
   LatLngLike,
@@ -111,6 +111,44 @@ export async function createMapLibreAdapter(
   });
   map.on('click', (e) => tapCb?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }));
 
+  // The route lives in its own source/layers. Changing the basemap style wipes them, so they are re-added on
+  // every style load; if the style is not ready yet, adding throws and the `style.load` redraw takes over.
+  let routeCoords: LatLngLike[] | null = null;
+  const drawRoute = () => {
+    try {
+      const data = {
+        type: 'Feature' as const,
+        properties: {},
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: (routeCoords ?? []).map((p) => [p.lng, p.lat] as [number, number]),
+        },
+      };
+      const src = map.getSource('route') as GeoJSONSource | undefined;
+      if (src) return src.setData(data);
+      if (!routeCoords) return;
+      map.addSource('route', { type: 'geojson', data });
+      const line = { 'line-cap': 'round', 'line-join': 'round' } as const;
+      map.addLayer({
+        id: 'route-casing',
+        type: 'line',
+        source: 'route',
+        layout: line,
+        paint: { 'line-color': '#ffffff', 'line-width': 11, 'line-opacity': 0.9 },
+      });
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: line,
+        paint: { 'line-color': opts.accent, 'line-width': 7 },
+      });
+    } catch {
+      /* style not loaded yet */
+    }
+  };
+  map.on('style.load', drawRoute);
+
   const run = (fn: () => void) => {
     programmatic++;
     fn();
@@ -159,6 +197,10 @@ export async function createMapLibreAdapter(
         .setLngLat([dest.lng, dest.lat])
         .addTo(map);
     },
+    setRoute(coords) {
+      routeCoords = coords && coords.length > 1 ? coords : null;
+      drawRoute();
+    },
     follow(t: FollowTarget) {
       run(() =>
         map.easeTo({
@@ -179,7 +221,7 @@ export async function createMapLibreAdapter(
         }),
       );
     },
-    fitTo(points) {
+    fitTo(points, insets) {
       if (points.length === 0) return;
       const b = points.reduce(
         (acc, p) => ({
@@ -196,7 +238,11 @@ export async function createMapLibreAdapter(
             [b.w, b.s],
             [b.e, b.n],
           ],
-          { padding: 80, maxZoom: 16, duration: 700 },
+          {
+            padding: insets ? { top: insets.top + 24, bottom: insets.bottom + 24, left: 48, right: 48 } : 80,
+            maxZoom: 16,
+            duration: 700,
+          },
         ),
       );
     },

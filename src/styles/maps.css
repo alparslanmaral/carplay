@@ -124,6 +124,9 @@
   border-radius: calc(var(--radius) * 0.9);
   min-height: var(--tt);
 }
+.maps__search[hidden] {
+  display: none;
+}
 .maps__search .input {
   background: transparent;
   border: 0;
@@ -251,6 +254,101 @@
   .maps__sheet-row {
     flex: 1 1 14rem;
   }
+}
+
+/* ---------- In-app navigation ---------- */
+.maps__bottom > .maps__sheet:not(.nav__bar) {
+  max-height: 62vh;
+  overflow-y: auto;
+}
+.nav__status {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--text-dim);
+}
+.nav__spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.nav__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.125rem 0.75rem;
+  font-size: calc(1.125rem * var(--text-scale));
+}
+.nav__summary strong {
+  font-size: calc(1.75rem * var(--text-scale));
+  font-weight: 750;
+}
+.nav__notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.875rem;
+}
+.nav__notes:empty {
+  display: none;
+}
+.nav__note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: calc(0.9375rem * var(--text-scale));
+  color: var(--text-dim);
+}
+.nav__note[data-tone='warn'] {
+  color: var(--warn);
+}
+.maps__sheet-row .btn[data-on='true'] {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.nav__banner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.5rem 1rem;
+  min-height: calc(var(--tt) + 0.75rem);
+  background: var(--glass-strong);
+  border-radius: calc(var(--radius) * 0.9);
+}
+.nav__banner > .icon {
+  flex: none;
+  color: var(--accent);
+}
+.nav__banner-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.nav__dist {
+  font-size: calc(1.75rem * var(--text-scale));
+  font-weight: 800;
+  line-height: 1.1;
+}
+.nav__instr {
+  font-size: calc(1.0625rem * var(--text-scale));
+  line-height: 1.25;
+}
+.nav__bar {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav__totals {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.125rem 0.75rem;
+  font-size: calc(1.0625rem * var(--text-scale));
+}
+.nav__totals strong {
+  font-size: calc(1.5rem * var(--text-scale));
+  font-weight: 750;
 }
 
 /* ---------- Destinations ---------- */

@@ -69,6 +69,7 @@ export async function createMapKitAdapter(
 
   let user: any = null;
   let dest: any = null;
+  let routeOverlay: any = null;
   let moveCb: (() => void) | null = null;
   let tapCb: ((p: LatLngLike) => void) | null = null;
   let programmatic = false;
@@ -113,13 +114,32 @@ export async function createMapKitAdapter(
       dest = new mapkit.MarkerAnnotation(coord(d), { color: '#ff3b30', title: d.name });
       map.addAnnotation(dest);
     },
+    setRoute(coords) {
+      if (routeOverlay) map.removeOverlay(routeOverlay);
+      routeOverlay = null;
+      if (!coords || coords.length < 2) return;
+      routeOverlay = new mapkit.PolylineOverlay(coords.map(coord), {
+        style: new mapkit.Style({
+          lineWidth: 7,
+          strokeColor: opts.accent,
+          lineJoin: 'round',
+          lineCap: 'round',
+        }),
+      });
+      map.addOverlay(routeOverlay);
+    },
     follow: (t) => move(t, true),
     jumpTo: (t) => move(t, false),
-    fitTo(points) {
+    fitTo(points, insets) {
       if (!points.length) return;
       map.showItems(
         points.map((p) => new mapkit.MarkerAnnotation(coord(p))),
-        { animate: true, padding: new mapkit.Padding(80, 80, 80, 80) },
+        {
+          animate: true,
+          padding: insets
+            ? new mapkit.Padding(insets.top + 24, 48, insets.bottom + 24, 48)
+            : new mapkit.Padding(80, 80, 80, 80),
+        },
       );
     },
     getView(): MapView {

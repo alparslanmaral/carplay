@@ -31,6 +31,8 @@ After each milestone: `npm run build`, `npm run lint`, `npm test`, Playwright sc
 22. **Dev-only hooks.** `window.__dd` (stores, for e2e) exists only in the dev server; `?demo=1`, `?screen=` and `?skipOnboarding=1` are documented conveniences.
 23. **Screenshots** were taken with Chromium and stubbed network (deterministic tiles, fake IFrame API, mocked Spotify/YouTube/Open-Meteo/Photon). They show layout, not real content or real iOS rendering.
 
+24. **In-app navigation (added after M7).** "DriveDeck (open source)" is a fifth navigation choice next to Apple Maps / Google Maps / Waze / ask. Routing is Valhalla on the public FOSSGIS instance (no key, CORS enabled); `use_tolls` / `use_highways` implement "avoid tolls / motorways" (a strong preference, so the answer's `has_toll` is shown). Progress is the position snapped onto the route polyline; three consecutive good fixes more than max(60 m, 2x accuracy) off the line trigger one reroute (8 s apart); poor fixes (>=100 m accuracy) neither count nor reset. Speech is opt-in (Web Speech) because it can interrupt Spotify's audio session. The active trip is stored (`dd.nav`, 6 h) and re-planned from the first GPS fix after a restart. Honest limits: foreground only, no traffic / speed limits / lanes. The Google Maps link also carries `avoid=tolls|highways`.
+
 ## Not verified on real hardware
 
 No iPhone, car or live Spotify / Google / Apple / Google-Maps credentials were available during development. Verified in automated tests: logic, layouts, the offline shell and manifest. **Needs a real-device check:** Spotify and Google sign-in inside the installed app, steering-wheel keys in both modes, the Wake Lock in standalone mode, Google Maps / MapKit adapters, and the YouTube IFrame player on iOS.

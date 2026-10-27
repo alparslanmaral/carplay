@@ -60,6 +60,7 @@ export async function createGoogleAdapter(
 
   let userMarker: any = null;
   let destMarker: any = null;
+  let routeLine: any = null;
   let moveCb: (() => void) | null = null;
   let tapCb: ((p: LatLngLike) => void) | null = null;
   let programmatic = false;
@@ -107,13 +108,29 @@ export async function createGoogleAdapter(
         ? new google.maps.Marker({ map, position: { lat: dest.lat, lng: dest.lng }, title: dest.name })
         : null;
     },
+    setRoute(coords) {
+      routeLine?.setMap(null);
+      routeLine =
+        coords && coords.length > 1
+          ? new google.maps.Polyline({
+              map,
+              path: coords,
+              strokeColor: opts.accent,
+              strokeOpacity: 0.95,
+              strokeWeight: 7,
+            })
+          : null;
+    },
     follow: move,
     jumpTo: move,
-    fitTo(points) {
+    fitTo(points, insets) {
       if (!points.length) return;
       const b = new google.maps.LatLngBounds();
       points.forEach((p) => b.extend(p));
-      map.fitBounds(b, 80);
+      map.fitBounds(
+        b,
+        insets ? { top: insets.top + 24, bottom: insets.bottom + 24, left: 48, right: 48 } : 80,
+      );
     },
     getView(): MapView {
       const c = map.getCenter();
@@ -125,6 +142,7 @@ export async function createGoogleAdapter(
     destroy() {
       userMarker?.setMap(null);
       destMarker?.setMap(null);
+      routeLine?.setMap(null);
       container.replaceChildren();
     },
   };

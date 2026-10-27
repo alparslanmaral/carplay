@@ -5,6 +5,7 @@ import { startDrivingMonitor, useDriving } from './driving';
 import { setupI18n } from './i18n';
 import { settingsEnglish } from './settingsSchema';
 import { startGeoIfPermitted, useGeo } from '../services/maps/geolocation';
+import { resumeNavigation } from '../services/maps/navigation';
 import { DemoController } from '../services/media/demo';
 import {
   pickInitialSource,
@@ -65,6 +66,9 @@ export function bootstrapApp(): void {
   startRouterPersistence();
   startDrivingMonitor();
   void startGeoIfPermitted();
+
+  // iOS may have killed the app while another one was in front: carry on with the trip in progress.
+  if (route.type !== 'onboarding' && resumeNavigation()) useRouter.getState().open('maps');
 
   const initial = pickInitialSource(s.defaultSource, s.lastSource, availableSources());
   if (initial) void setActiveSource(initial).catch((e) => log.warn('boot', 'activating source failed', e));

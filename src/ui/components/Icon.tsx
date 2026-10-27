@@ -101,6 +101,17 @@ const GLYPHS: Record<string, string> = {
   sparkle: '<path class="f" d="m12 4 1.800 5.200L19 11l-5.200 1.800L12 18l-1.800-5.200L5 11l5.200-1.800z"/>',
   mic: '<rect x="9" y="4" width="6" height="10" rx="3"/><path d="M6 11.500a6 6 0 0 0 12 0M12 17.500V20"/>',
   tv: '<rect x="3.500" y="5.500" width="17" height="11" rx="2.500"/><path d="M9 20h6M12 16.500V20"/>',
+  // turn-by-turn manoeuvres
+  'maneuver-straight': '<path d="M12 20V5M6.500 10.500 12 5l5.500 5.500"/>',
+  'maneuver-left': '<path d="M16 20v-7a3 3 0 0 0-3-3H6.500M10.500 5.500 6 10l4.500 4.500"/>',
+  'maneuver-right': '<path d="M8 20v-7a3 3 0 0 1 3-3h6.500M13.500 5.500 18 10l-4.500 4.500"/>',
+  'maneuver-sharp-left':
+    '<path d="M17 20V9.500a2.500 2.500 0 0 0-2.500-2.500H8M11 3.500 7.500 7 11 10.500"/>',
+  'maneuver-sharp-right': '<path d="M7 20V9.500A2.500 2.500 0 0 1 9.500 7H16M13 3.500 16.500 7 13 10.500"/>',
+  'maneuver-uturn': '<path d="M8 20V9.500a4 4 0 0 1 8 0V13M12.500 9.500 16 13l3.500-3.500"/>',
+  'maneuver-roundabout':
+    '<circle cx="12" cy="14" r="3.500"/><path d="M12 10.500V4M8.500 7.500 12 4l3.500 3.500M12 17.500V21"/>',
+  flag: '<path d="M6 20.500V4.500"/><path class="f" d="M6 5h11l-2.500 3.500L17 12H6z"/>',
 };
 
 export const ICON_NAMES = Object.keys(GLYPHS);

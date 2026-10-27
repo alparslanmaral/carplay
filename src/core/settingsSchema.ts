@@ -371,8 +371,29 @@ export const SECTIONS: SettingSection[] = [
       select(
         'navApp',
         'Navigation app',
-        opts('navApp', { apple: 'Apple Maps', google: 'Google Maps', waze: 'Waze', ask: 'Ask every time' }),
-        'Turn-by-turn navigation opens in this app.',
+        opts('navApp', {
+          drivedeck: 'DriveDeck (open source)',
+          apple: 'Apple Maps',
+          google: 'Google Maps',
+          waze: 'Waze',
+          ask: 'Ask every time',
+        }),
+        'DriveDeck draws the route and guides you inside the app (OpenStreetMap data). The other apps take over the screen.',
+      ),
+      toggle(
+        'avoidTolls',
+        'Avoid toll roads',
+        'Used by DriveDeck routes and Google Maps. Waze and Apple Maps have their own toggle in their settings.',
+        { keywords: 'toll motorway highway otoyol ucretli' },
+      ),
+      toggle('avoidHighways', 'Avoid motorways', 'Used by DriveDeck routes and Google Maps.', {
+        keywords: 'highway freeway',
+      }),
+      toggle(
+        'navVoice',
+        'Voice guidance (DriveDeck)',
+        'Speaks turns aloud with the iPhone voice. It can briefly pause music from the Spotify app.',
+        { keywords: 'speech spoken sound' },
       ),
       toggle(
         'autoHandoff',

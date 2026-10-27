@@ -31,10 +31,13 @@ export interface MapAdapter {
   setTraffic(on: boolean): void;
   setUser(user: UserMarker | null): void;
   setDestination(dest: (LatLngLike & { name?: string }) | null): void;
+  /** Draw (or clear with null) the planned route as a line. */
+  setRoute(coords: LatLngLike[] | null): void;
   /** Smoothly move the camera (used while following the user). */
   follow(target: FollowTarget): void;
   jumpTo(target: FollowTarget): void;
-  fitTo(points: LatLngLike[]): void;
+  /** Frame all points; `insets` keeps them clear of UI laid over the map (search bar on top, sheet at the bottom). */
+  fitTo(points: LatLngLike[], insets?: { top: number; bottom: number }): void;
   getView(): MapView;
   /** The user dragged / zoomed the map by hand. */
   onUserMove(cb: () => void): void;

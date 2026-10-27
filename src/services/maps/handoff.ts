@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { getSettings, type Place } from '../../core/settings';
 import { openExternal } from '../../ui/launch';
-import { navUrl, type NavAppId } from './deeplinks';
+import { navUrl, type NavTarget } from './deeplinks';
+import { navigateInApp } from './navigation';
 import { addRecent } from './places';
 
 interface ChooserState {
@@ -17,12 +18,14 @@ export const useNavChooser = create<ChooserState>((set) => ({
   close: () => set({ place: null }),
 }));
 
-export function handOffTo(app: NavAppId, place: Place): void {
+export function handOffTo(app: NavTarget, place: Place): void {
+  if (app === 'drivedeck') return navigateInApp(place);
   addRecent(place);
-  openExternal(navUrl(app, place.lat, place.lng));
+  const { avoidTolls, avoidHighways } = getSettings();
+  openExternal(navUrl(app, place.lat, place.lng, { tolls: avoidTolls, highways: avoidHighways }));
 }
 
-/** One-tap hand-off to the preferred navigation app, or the chooser when the preference is "ask". */
+/** One-tap navigation in the preferred app, or the chooser when the preference is "ask". */
 export function navigateTo(place: Place): void {
   const pref = getSettings().navApp;
   if (pref === 'ask') useNavChooser.getState().open(place);

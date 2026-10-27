@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+﻿import type { Page } from '@playwright/test';
 import { deflateSync } from 'node:zlib';
 
 /**
@@ -105,7 +105,86 @@ export function fakeTile(z: number, x: number, y: number, dark: boolean): Buffer
   ]);
 }
 
+function encodePolyline(points: [number, number][]): string {
+  let out = '';
+  let pLat = 0;
+  let pLng = 0;
+  const put = (v: number) => {
+    let n = v < 0 ? ~(v << 1) : v << 1;
+    while (n >= 0x20) {
+      out += String.fromCharCode((0x20 | (n & 0x1f)) + 63);
+      n >>= 5;
+    }
+    out += String.fromCharCode(n + 63);
+  };
+  for (const [lat, lng] of points) {
+    const a = Math.round(lat * 1e6);
+    const b = Math.round(lng * 1e6);
+    put(a - pLat);
+    put(b - pLng);
+    pLat = a;
+    pLng = b;
+  }
+  return out;
+}
+
+/** Sultanahmet -> Galata, as a Valhalla answer. Avoiding tolls drops the toll flag, like the real service. */
+export const ROUTE_POINTS: [number, number][] = [
+  [41.0082, 28.9784],
+  [41.01, 28.979],
+  [41.0125, 28.9775],
+  [41.016, 28.9765],
+  [41.02, 28.975],
+  [41.0256, 28.9741],
+];
+
+export function valhallaAnswer(avoidTolls: boolean) {
+  return {
+    trip: {
+      summary: { length: 2, time: 510, has_toll: !avoidTolls, has_ferry: false },
+      legs: [
+        {
+          shape: encodePolyline(ROUTE_POINTS),
+          maneuvers: [
+            { type: 1, instruction: 'Drive north on Divan Yolu.', length: 0.4, time: 60 },
+            {
+              type: 10,
+              instruction: 'Turn right onto Alemdar Caddesi.',
+              verbal_pre_transition_instruction: 'Turn right onto Alemdar Caddesi.',
+              street_names: ['Alemdar Caddesi'],
+              length: 0.8,
+              time: 200,
+            },
+            {
+              type: 15,
+              instruction: 'Turn left onto Galata Bridge.',
+              street_names: ['Galata Bridge'],
+              length: 0.8,
+              time: 250,
+            },
+            { type: 4, instruction: 'You have arrived at your destination.', length: 0, time: 0 },
+          ],
+        },
+      ],
+    },
+  };
+}
+
 export async function mockMaps(page: Page): Promise<void> {
+  const cors = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-headers': '*',
+    'access-control-allow-methods': 'POST, OPTIONS',
+  };
+  await page.route('https://valhalla1.openstreetmap.de/route', (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const body = req.postDataJSON() as { costing_options: { auto: { use_tolls: number } } };
+    return route.fulfill({
+      headers: cors,
+      json: valhallaAnswer(body.costing_options.auto.use_tolls === 0),
+    });
+  });
   // The vector road styles are replaced by a small raster style that points at fake tiles on the same host.
   await page.route(/tiles\.versatiles\.org\/assets\/styles\/(\w+)\/style\.json/, (route) => {
     const dark = route.request().url().includes('/eclipse/');
@@ -118,7 +197,7 @@ export async function mockMaps(page: Page): Promise<void> {
             tiles: [`https://tiles.versatiles.org/mock/${dark ? 'dark' : 'light'}/{z}/{x}/{y}.png`],
             tileSize: 256,
             maxzoom: 19,
-            attribution: '© OpenStreetMap contributors',
+            attribution: 'Â© OpenStreetMap contributors',
           },
         },
         layers: [{ id: 'base', type: 'raster', source: 'base' }],
@@ -136,9 +215,9 @@ export async function mockMaps(page: Page): Promise<void> {
     route.fulfill({
       json: {
         features: [
-          { name: 'Galata Tower', city: 'Istanbul', country: 'Türkiye', c: [28.9741, 41.0256] },
-          { name: 'Galata Bridge', city: 'Istanbul', country: 'Türkiye', c: [28.9733, 41.0206] },
-          { name: 'Galatasaray Island', city: 'Istanbul', country: 'Türkiye', c: [29.0356, 41.0455] },
+          { name: 'Galata Tower', city: 'Istanbul', country: 'TÃ¼rkiye', c: [28.9741, 41.0256] },
+          { name: 'Galata Bridge', city: 'Istanbul', country: 'TÃ¼rkiye', c: [28.9733, 41.0206] },
+          { name: 'Galatasaray Island', city: 'Istanbul', country: 'TÃ¼rkiye', c: [29.0356, 41.0455] },
         ].map((f, i) => ({
           geometry: { coordinates: f.c },
           properties: {
@@ -159,7 +238,7 @@ export async function mockMaps(page: Page): Promise<void> {
         features: [
           {
             geometry: { coordinates: [29.0, 41.04] },
-            properties: { name: 'Barbaros Boulevard', city: 'Istanbul', country: 'Türkiye' },
+            properties: { name: 'Barbaros Boulevard', city: 'Istanbul', country: 'TÃ¼rkiye' },
           },
         ],
       },

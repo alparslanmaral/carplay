@@ -26,7 +26,7 @@ export default defineConfig({
   projects: [
     {
       name: 'smoke',
-      testMatch: /(smoke|touch-targets)\.spec\.ts/,
+      testMatch: /(smoke|touch-targets|navigation)\.spec\.ts/,
       use: { viewport: { width: 390, height: 844 } },
     },
     { name: 'shots', testMatch: /screenshots\.spec\.ts/ },

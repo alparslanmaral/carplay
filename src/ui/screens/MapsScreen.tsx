@@ -8,10 +8,12 @@ import { navAppLabel } from '../../services/maps/deeplinks';
 import { reverseGeocode, resolveResult, ATTRIBUTION, type SearchResult } from '../../services/maps/geocode';
 import { useGeo } from '../../services/maps/geolocation';
 import { navigateTo, useNavChooser } from '../../services/maps/handoff';
+import { stopNavigation, useNav } from '../../services/maps/navigation';
 import { removeFavorite, saveFavorite } from '../../services/maps/places';
 import { Icon } from '../components/Icon';
 import { BackButton } from '../components/Screen';
 import { MapCanvas } from '../components/MapCanvas';
+import { GuidanceBanner, GuidanceBar, RouteSheet } from '../components/NavPanels';
 import { PlaceRow, usePlaceDistance } from '../components/PlaceRow';
 import { TextInput } from '../components/TextInput';
 import { usePlaceSearch } from '../hooks/usePlaceSearch';
@@ -117,6 +119,17 @@ export default function MapsScreen({ params }: { params: Params }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const search = usePlaceSearch(query, submitNonce);
   const pinSeq = useRef(0);
+  const navPhase = useNav((s) => s.phase);
+  const navDestination = useNav((s) => s.destination);
+  const navRoute = useNav((s) => s.route);
+  const guiding = navPhase === 'guiding';
+  const routing = navPhase === 'routing' || navPhase === 'preview';
+
+  // Choosing something else while a route is only being previewed drops that preview; guidance is ended
+  // explicitly with the End button.
+  const dropPreview = () => {
+    if (useNav.getState().phase !== 'guiding') stopNavigation();
+  };
 
   // Opened from Destinations / a widget with ?dest=<place id>.
   const destId = params.dest;
@@ -139,6 +152,7 @@ export default function MapsScreen({ params }: { params: Params }) {
       setQuery('');
       setFocused(false);
       inputRef.current?.blur();
+      dropPreview();
       if (assign) {
         saveFavorite(place, assign);
         toast(t('maps.savedAs', { kind: t(`maps.kind.${assign}`) }), 'ok');
@@ -157,11 +171,15 @@ export default function MapsScreen({ params }: { params: Params }) {
     setQuery('');
     setFocused(false);
     inputRef.current?.blur();
+    dropPreview();
     if (autoHandoff) navigateTo(place);
     else setSelected(place);
   };
 
   const dropPin = async (p: { lat: number; lng: number }) => {
+    // While driving a route, stray taps on the map must not open a new destination.
+    if (useNav.getState().phase === 'guiding') return;
+    dropPreview();
     const seq = ++pinSeq.current;
     setFocused(false);
     inputRef.current?.blur();
@@ -192,7 +210,9 @@ export default function MapsScreen({ params }: { params: Params }) {
     <section className="maps" aria-label={t('apps.maps')}>
       <MapCanvas
         className="maps__map"
-        destination={selected}
+        destination={navDestination ?? selected}
+        route={navRoute?.coords ?? null}
+        guiding={guiding}
         onTap={dropPin}
         recenterNonce={recenterNonce}
         onFollowChange={setFollowing}
@@ -200,7 +220,8 @@ export default function MapsScreen({ params }: { params: Params }) {
 
       <div className="maps__top">
         <BackButton />
-        <div className="maps__search glass">
+        {guiding && <GuidanceBanner />}
+        <div className="maps__search glass" hidden={guiding}>
           <Icon name="search" />
           <TextInput
             ref={inputRef}
@@ -231,7 +252,7 @@ export default function MapsScreen({ params }: { params: Params }) {
         </div>
       </div>
 
-      {showPanel && (
+      {showPanel && !guiding && (
         <div className="maps__panel glass scroll-y" role="listbox" aria-label={t('maps.results')}>
           {search.tooShort ? (
             <>
@@ -310,7 +331,13 @@ export default function MapsScreen({ params }: { params: Params }) {
             <Icon name="crosshair" size="1.7rem" />
           </button>
         </div>
-        {selected && <DestinationSheet place={selected} onClose={() => setSelected(null)} />}
+        {guiding ? (
+          <GuidanceBar />
+        ) : routing ? (
+          <RouteSheet />
+        ) : (
+          selected && <DestinationSheet place={selected} onClose={() => setSelected(null)} />
+        )}
         {geoStatus === 'denied' && (
           <div className="notice" data-tone="bad">
             <Icon name="warning" />

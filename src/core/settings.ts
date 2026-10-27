@@ -19,7 +19,7 @@ export const OPTIONS = {
   nowPlayingBg: ['art', 'solid', 'gradient'],
   artworkShape: ['rounded', 'square', 'vinyl'],
   ytWhileMoving: ['blocked', 'allowed'],
-  navApp: ['apple', 'google', 'waze', 'ask'],
+  navApp: ['drivedeck', 'apple', 'google', 'waze', 'ask'],
   mapProvider: ['maplibre', 'google', 'mapkit'],
   mapStyle: ['auto', 'light', 'dark', 'satellite'],
   mapOrientation: ['north', 'heading'],
@@ -127,6 +127,9 @@ export interface Settings {
 
   // Maps
   navApp: Opt<'navApp'>;
+  avoidTolls: boolean;
+  avoidHighways: boolean;
+  navVoice: boolean;
   mapProvider: Opt<'mapProvider'>;
   mapStyle: Opt<'mapStyle'>;
   mapOrientation: Opt<'mapOrientation'>;
@@ -232,6 +235,9 @@ export const DEFAULT_SETTINGS: Settings = {
   ytWhileMoving: 'blocked',
 
   navApp: 'apple',
+  avoidTolls: false,
+  avoidHighways: false,
+  navVoice: false,
   mapProvider: 'maplibre',
   mapStyle: 'auto',
   mapOrientation: 'north',
