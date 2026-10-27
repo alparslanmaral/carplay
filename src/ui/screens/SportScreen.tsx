@@ -47,7 +47,7 @@ export default function SportScreen() {
   const settings = useSettings();
   const { sportMode, sportEngine } = settings;
   const speedUnit = settings.speedUnit;
-  const { active, locked, demo, supported, rpm, gear, boost, speedKmh } = useSport();
+  const { active, locked, demo, supported, motion, rpm, gear, boost, speedKmh } = useSport();
   const profile = ENGINES[sportEngine];
   const section = SECTIONS.find((s) => s.id === 'sport')!;
   const features = getFeatures();
@@ -113,6 +113,11 @@ export default function SportScreen() {
           <p className="sport__status dim" role="status">
             {status}
           </p>
+          {sportMode && settings.sportInput === 'motion' && motion !== 'off' && (
+            <p className="sport__status dim" data-motion={motion}>
+              {t(`sport.motion.${motion}`)}
+            </p>
+          )}
           <button className="btn btn--block" onClick={playDemo} aria-pressed={demo}>
             <Icon name={demo ? 'stop' : 'play'} /> {demo ? t('sport.stopTest') : t('sport.test')}
           </button>

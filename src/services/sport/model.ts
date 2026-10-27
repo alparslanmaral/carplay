@@ -22,6 +22,11 @@ export interface DriveState {
   accel: number;
   /** Speed estimate between fixes, m/s. */
   speed: number;
+  /** Speed integrated from the accelerometer and pulled towards each GPS fix (m/s). */
+  fused: number;
+  /** Latest forward acceleration from the accelerometer (m/s^2) and when it arrived. */
+  motionAccel: number;
+  motionAt: number;
   throttle: number;
   /** Recent throttle peak; a lift-off is the throttle closing after a high peak. */
   peak: number;
@@ -52,6 +57,9 @@ export function createDrive(profile: EngineProfile): DriveState {
     fixAt: 0,
     accel: 0,
     speed: 0,
+    fused: 0,
+    motionAccel: 0,
+    motionAt: -Infinity,
     throttle: 0,
     peak: 0,
     rpm: profile.idleRpm,
@@ -73,9 +81,29 @@ export const hardAccel = (sensitivity: number) => lerp(4.8, 1.8, sens01(sensitiv
 /** Acceleration that opens the throttle fully. */
 const fullThrottleAccel = (sensitivity: number) => lerp(6, 2.2, sens01(sensitivity));
 
+/** The accelerometer answer counts as live for this long after its last sample. */
+const MOTION_FRESH_S = 0.35;
+/** A GPS reading describes the car about this long before it reaches us. */
+const GPS_LAG_S = 0.35;
+
+export const motionFresh = (s: DriveState, now: number) => s.hasFix && now - s.motionAt < MOTION_FRESH_S;
+
+/** Forward acceleration from the accelerometer (see motion.ts), many times a second. */
+export function observeMotion(s: DriveState, forwardAccel: number, now: number): void {
+  s.motionAccel = clamp(forwardAccel, -12, 12);
+  s.motionAt = now;
+}
+
 /** A new GPS speed reading arrived. */
 export function observeFix(s: DriveState, speedKmh: number, now: number): void {
   const v = Math.max(0, speedKmh) / 3.6;
+  if (motionFresh(s, now)) {
+    // pull the integrated speed towards GPS, after allowing for the age of the reading
+    const gps = Math.max(0, v + s.motionAccel * GPS_LAG_S);
+    s.fused += (gps - s.fused) * 0.7;
+  } else {
+    s.fused = v;
+  }
   if (s.hasFix) {
     const dt = now - s.fixAt;
     if (dt > 0.25 && dt < 3) {
@@ -103,21 +131,34 @@ export function stepDrive(s: DriveState, now: number, dt: number, params: DriveP
 
   // ---- speed between fixes: extrapolate along the acceleration, but only for a moment
   const age = now - s.fixAt;
+  const live = motionFresh(s, now);
+  /** The acceleration everything below reacts to: the accelerometer when it is live, else GPS. */
+  let accel = s.accel;
   if (!s.hasFix) {
     s.speed = 0;
+  } else if (live) {
+    accel = s.motionAccel;
+    s.fused = Math.max(0, s.fused + accel * dt);
+    // Standing still: sensor noise must not creep into a phantom speed.
+    if (s.fixSpeed < 0.3 && Math.abs(accel) < 0.5 && s.fused < 0.8) s.fused = 0;
+    let target = s.fused;
+    if (age > 8) target *= Math.exp(-(age - 8) / 4);
+    s.speed += (target - s.speed) * (1 - Math.exp(-dt / 0.05));
   } else {
     if (age > 1.2) s.accel *= Math.exp(-dt / 1.5);
+    accel = s.accel;
     let target = Math.max(0, s.fixSpeed + s.accel * clamp(age, 0, 1.5));
     // A GPS that has gone quiet (tunnel, lost fix) lets the car coast to a stop instead of revving forever.
     if (age > 8) target *= Math.exp(-(age - 8) / 4);
     s.speed += (target - s.speed) * (1 - Math.exp(-dt / 0.12));
+    s.fused = s.speed;
   }
   const kmh = s.speed * 3.6;
 
   // ---- throttle: lift when slowing, open in proportion to the acceleration
   const cruise = kmh > 2 ? 0.1 + Math.min(0.12, kmh * 0.0009) : 0;
   const wanted =
-    s.accel < -0.7 ? 0 : clamp(cruise + (Math.max(0, s.accel) / fullThrottleAccel(sensitivity)) * 0.9, 0, 1);
+    accel < -0.7 ? 0 : clamp(cruise + (Math.max(0, accel) / fullThrottleAccel(sensitivity)) * 0.9, 0, 1);
   const rate = (wanted > s.throttle ? 7 : 5) * dt;
   s.throttle += clamp(wanted - s.throttle, -rate, rate);
   // The throttle moves in small steps, so a lift-off is detected against the recent peak, not the last frame.
@@ -174,13 +215,13 @@ export function stepDrive(s: DriveState, now: number, dt: number, params: DriveP
 
   // ---- exhaust pops
   const hard = hardAccel(sensitivity);
-  if (s.accel > hard && !s.hardActive && kmh > 2 && s.popCooldown <= 0) {
+  if (accel > hard && !s.hardActive && kmh > 2 && s.popCooldown <= 0) {
     s.hardActive = true;
     s.popCooldown = 1.6;
     events.pop = 'accel';
-    events.popIntensity = clamp(s.accel / (hard * 2), 0.3, 1);
+    events.popIntensity = clamp(accel / (hard * 2), 0.3, 1);
   }
-  if (s.accel < hard * 0.5) s.hardActive = false;
+  if (accel < hard * 0.5) s.hardActive = false;
   if (lift && peakBefore > 0.6 && s.rpm > 2200 && kmh > 20 && s.popCooldown <= 0) {
     s.popCooldown = 1.6;
     events.pop = 'lift';

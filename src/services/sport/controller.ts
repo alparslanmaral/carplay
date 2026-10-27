@@ -3,11 +3,13 @@ import { log } from '../../core/logger';
 import { getSettings, useSettings, type Settings } from '../../core/settings';
 import { restartGeo, useGeo } from '../maps/geolocation';
 import { SportAudio, type SportAudioConfig } from './audio';
+import { MotionTracker } from './motion';
 import {
   DEMO_SECONDS,
   createDrive,
   demoSpeedKmh,
   observeFix,
+  observeMotion,
   stepDrive,
   toFrame,
   type DriveEvents,
@@ -33,6 +35,8 @@ export interface SportState {
   /** Test sound is playing. */
   demo: boolean;
   supported: boolean;
+  /** Accelerometer input: off (GPS only), waiting for permission / a tap, learning the mount, ready, or unusable. */
+  motion: MotionStatus;
   rpm: number;
   gear: number;
   throttle: number;
@@ -40,11 +44,14 @@ export interface SportState {
   speedKmh: number;
 }
 
+export type MotionStatus = 'off' | 'asking' | 'denied' | 'unsupported' | 'calibrating' | 'ready';
+
 const IDLE_STATE: SportState = {
   active: false,
   locked: false,
   demo: false,
   supported: true,
+  motion: 'off',
   rpm: 0,
   gear: 1,
   throttle: 0,
@@ -131,9 +138,86 @@ function resume(): void {
     .catch(() => undefined);
 }
 
+/* ------------------------------------------------------------ accelerometer */
+
+type MotionEventCtor = { requestPermission?: () => Promise<'granted' | 'denied'> };
+
+let tracker: MotionTracker | null = null;
+let motionStatus: MotionStatus = 'off';
+let motionAttached = false;
+let motionWatchdog: ReturnType<typeof setTimeout> | null = null;
+
+function setMotion(status: MotionStatus): void {
+  motionStatus = status;
+  useSport.setState({ motion: status });
+}
+
+function onMotion(e: DeviceMotionEvent): void {
+  const g = e.accelerationIncludingGravity;
+  if (!tracker || !g || g.x == null || g.y == null || g.z == null) return;
+  if (motionWatchdog) {
+    clearTimeout(motionWatchdog);
+    motionWatchdog = null;
+  }
+  const a = e.acceleration;
+  const linear =
+    a && a.x != null && a.y != null && a.z != null ? ([a.x, a.y, a.z] as [number, number, number]) : null;
+  const t = nowS();
+  const forward = tracker.feed({ linear, gravity: [g.x, g.y, g.z] }, t);
+  if (forward !== null && drive && demoStartedAt === null) observeMotion(drive, forward, t);
+}
+
+function attachMotion(): void {
+  if (motionAttached) return;
+  tracker = new MotionTracker();
+  window.addEventListener('devicemotion', onMotion);
+  motionAttached = true;
+  setMotion('calibrating');
+  // Desktop browsers and some in-app views expose the API but never send data.
+  motionWatchdog = setTimeout(() => {
+    if (motionAttached) {
+      detachMotion();
+      setMotion('unsupported');
+    }
+  }, 3000);
+}
+
+function detachMotion(): void {
+  window.removeEventListener('devicemotion', onMotion);
+  if (motionWatchdog) clearTimeout(motionWatchdog);
+  motionWatchdog = null;
+  motionAttached = false;
+  tracker = null;
+}
+
+/**
+ * Start listening to the accelerometer when "Accelerometer + GPS" is chosen. On iOS the permission prompt only
+ * appears from a user gesture, so this must be called synchronously from a tap handler (the settings change or the
+ * sport toggle); after a restart the first tap retries it.
+ */
+function startMotion(): void {
+  if (motionAttached || getSettings().sportInput !== 'motion') return;
+  const Ev = (window as unknown as { DeviceMotionEvent?: MotionEventCtor }).DeviceMotionEvent;
+  if (!Ev) return setMotion('unsupported');
+  if (typeof Ev.requestPermission !== 'function') return attachMotion();
+  setMotion('asking');
+  Ev.requestPermission()
+    .then((r) => (r === 'granted' ? attachMotion() : setMotion('denied')))
+    // not from a gesture (app just launched): wait for the first tap
+    .catch(() => setMotion('asking'));
+}
+
+function stopMotion(): void {
+  detachMotion();
+  setMotion('off');
+}
+
 /** iOS only lets audio start from a tap; the first touch anywhere after launch unlocks it. */
 function installUnlock(): void {
-  const unlock = () => resume();
+  const unlock = () => {
+    resume();
+    if (ctx && motionStatus === 'asking') startMotion();
+  };
   for (const ev of ['pointerdown', 'touchend', 'keydown'] as const)
     document.addEventListener(ev, unlock, { capture: true, passive: true });
   document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && resume());
@@ -199,6 +283,9 @@ function tick(): void {
     restartGeo();
   }
 
+  if (motionStatus === 'calibrating' && tracker?.calibrated) setMotion('ready');
+  else if (motionStatus === 'ready' && !tracker?.calibrated) setMotion('calibrating');
+
   if (now - lastPublish > 0.1) {
     lastPublish = now;
     useSport.setState({
@@ -221,6 +308,7 @@ function start(): boolean {
   }
   ctx = c;
   const s = getSettings();
+  startMotion();
   audio = new SportAudio(c);
   audio.configure(configFromSettings(s), c.currentTime);
   drive = createDrive(ENGINES[s.sportEngine]);
@@ -230,7 +318,11 @@ function start(): boolean {
   unsubGeo = useGeo.subscribe((g) => {
     if (!drive || g.ts === lastGeoTs || demoStartedAt !== null) return;
     lastGeoTs = g.ts;
-    observeFix(drive, g.status === 'watching' ? g.speedKmh : 0, nowS());
+    const t = nowS();
+    const kmh = g.status === 'watching' ? g.speedKmh : 0;
+    // the tracker learns the mount from GPS speed changes; the model corrects its integrated speed with them
+    tracker?.onFix(kmh / 3.6, t);
+    observeFix(drive, kmh, t);
   });
   lastTick = nowS();
   timer = setInterval(tick, TICK_MS);
@@ -246,6 +338,7 @@ function stop(): void {
   timer = null;
   unsubGeo?.();
   unsubGeo = null;
+  stopMotion();
   audio?.dispose();
   audio = null;
   drive = null;
@@ -309,6 +402,11 @@ export function initSport(): void {
       observeFix(drive, keep, nowS());
     }
     if (s.sportPreciseGps !== prev.sportPreciseGps) restartGeo();
+    if (s.sportInput !== prev.sportInput) {
+      // runs inside the tap that changed the setting, which is what lets iOS show its permission prompt
+      stopMotion();
+      startMotion();
+    }
   });
   apply();
 }

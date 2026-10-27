@@ -8,7 +8,7 @@
     "save": "Save",
     "remove": "Remove",
     "retry": "Retry",
-    "loading": "Loading…",
+    "loading": "Loadingâ€¦",
     "on": "On",
     "off": "Off",
     "search": "Search",
@@ -48,6 +48,13 @@
     "rpm": "rpm",
     "gear": "Gear",
     "boost": "Boost",
+    "motion": {
+      "asking": "Accelerometer: tap the screen and allow motion access.",
+      "denied": "Accelerometer access was refused, so GPS alone is used. Allow it under Settings > Safari > Motion & Orientation Access, then choose the source again.",
+      "unsupported": "This device sends no motion data, so GPS alone is used.",
+      "calibrating": "Accelerometer: learning how the phone sits. Drive straight and accelerate or brake firmly a few times. GPS is used meanwhile.",
+      "ready": "Accelerometer ready: sounds react to the car's acceleration right away, GPS keeps the speed accurate."
+    },
     "muteSwitch": "If you hear nothing, check that the iPhone ringer switch is not on silent and that the car is playing the iPhone as its audio source.",
     "settings": "All sport settings"
   },
@@ -57,7 +64,7 @@
     "locked": "Driving lock active",
     "gps": {
       "idle": "GPS off",
-      "starting": "GPS starting…",
+      "starting": "GPS startingâ€¦",
       "watching": "GPS active",
       "denied": "Location permission denied",
       "unavailable": "GPS unavailable",
@@ -130,7 +137,7 @@
     "unknown": "Unknown"
   },
   "maps": {
-    "navigateIn": "Navigate in…",
+    "navigateIn": "Navigate inâ€¦",
     "navigateInApp": "Navigate in {{app}}",
     "navigate": "Navigate",
     "otherApp": "Other app",
@@ -157,14 +164,14 @@
     "locationDenied": "Location is blocked. Allow it for DriveDeck in iOS Settings > Privacy > Location Services to see yourself on the map.",
     "providerFallback": "Map provider unavailable ({{reason}}). Using OpenStreetMap.",
     "nav": {
-      "calculating": "Calculating route…",
+      "calculating": "Calculating routeâ€¦",
       "start": "Start",
       "retry": "Try again",
       "end": "End",
       "done": "Done",
       "arrives": "arrive {{time}}",
       "arrived": "You have arrived",
-      "rerouting": "Rerouting…",
+      "rerouting": "Reroutingâ€¦",
       "avoidTolls": "Avoid tolls",
       "avoidHighways": "Avoid motorways",
       "hasToll": "This route still includes toll roads",
@@ -252,7 +259,7 @@
   },
   "settings": {
     "search": "Search settings",
-    "noMatches": "No settings match “{{q}}”.",
+    "noMatches": "No settings match â€œ{{q}}â€.",
     "show": "Show",
     "hide": "Hide",
     "moveUp": "Move up",
@@ -299,7 +306,7 @@
       "errEmpty": "Enter a link, for example tel:+905551234567 or https://example.com.",
       "errInvalid": "That does not look like a valid link.",
       "errBlocked": "That kind of link is not allowed for safety reasons.",
-      "removeTitle": "Remove “{{name}}”?"
+      "removeTitle": "Remove â€œ{{name}}â€?"
     },
     "accounts": {
       "connected": "Connected",
@@ -346,7 +353,7 @@
     "diagnosticsHint": "Media session, wake lock, tokens, GPS",
     "install": "Install on iPhone",
     "installHint": "Add DriveDeck to the Home Screen",
-    "attribution": "Maps: © OpenStreetMap contributors, VersaTiles, Esri. Routes: Valhalla (FOSSGIS). Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
+    "attribution": "Maps: Â© OpenStreetMap contributors, VersaTiles, Esri. Routes: Valhalla (FOSSGIS). Search: Photon / Nominatim (OpenStreetMap). Weather: Open-Meteo. Spotify and YouTube are trademarks of their owners; DriveDeck is an independent app and is not affiliated with or endorsed by Spotify, Google or Apple."
   },
   "diag": {
     "media": "Media",
@@ -394,12 +401,12 @@
       {
         "icon": "car",
         "title": "Steering-wheel buttons",
-        "body": "iOS sends Bluetooth media keys to whichever app owns “Now Playing”. A web app cannot intercept them. In Spotify mode the Spotify app plays the music, DriveDeck only remote-controls it and deliberately stays out of the way, so the buttons keep working natively. In YouTube mode DriveDeck registers the media keys itself, but iOS decides how they behave for a video inside a web page, so they may not always respond."
+        "body": "iOS sends Bluetooth media keys to whichever app owns â€œNow Playingâ€. A web app cannot intercept them. In Spotify mode the Spotify app plays the music, DriveDeck only remote-controls it and deliberately stays out of the way, so the buttons keep working natively. In YouTube mode DriveDeck registers the media keys itself, but iOS decides how they behave for a video inside a web page, so they may not always respond."
       },
       {
         "icon": "music",
         "title": "Spotify needs Premium and the Spotify app",
-        "body": "Playback control through the Spotify Web API only works for Premium accounts, and only while the Spotify app is running on the iPhone. If it is not, DriveDeck shows an “Open Spotify” prompt and retries the transfer automatically. The Web Playback SDK is not supported on iOS, so DriveDeck cannot play Spotify audio itself. Apps in Spotify's development mode are limited to a handful of users."
+        "body": "Playback control through the Spotify Web API only works for Premium accounts, and only while the Spotify app is running on the iPhone. If it is not, DriveDeck shows an â€œOpen Spotifyâ€ prompt and retries the transfer automatically. The Web Playback SDK is not supported on iOS, so DriveDeck cannot play Spotify audio itself. Apps in Spotify's development mode are limited to a handful of users."
       },
       {
         "icon": "volume",
@@ -419,7 +426,7 @@
       {
         "icon": "engine",
         "title": "Sport mode sounds",
-        "body": "The engine, turbo and exhaust are synthesised in the app from your real speed; nothing is read from the car. A phone gets a new GPS speed about once a second, so the sound follows hard acceleration with up to a second of delay, and the revs, gears and boost are an estimate, not the real engine. Sound only plays while DriveDeck is open on screen, and iOS needs one tap after launch before it allows audio. The ringer switch must not be on silent. DriveDeck asks iOS to mix its sounds with other audio and never claims Now Playing, so Spotify and the steering-wheel buttons keep working, but how the iPhone and the car mix the two on a real drive is not something an app can guarantee. Loud synthetic exhaust sounds can disturb people outside the car: use them where that is appropriate."
+        "body": "The engine, turbo and exhaust are synthesised in the app from your real speed; nothing is read from the car. A phone gets a new GPS speed about once a second, so with GPS only the sound follows hard acceleration with up to a second of delay; the accelerometer option reacts much faster but needs motion access and a few firm straight-line accelerations to learn how the phone sits. Revs, gears and boost are an estimate, not the real engine. Sound only plays while DriveDeck is open on screen, and iOS needs one tap after launch before it allows audio. The ringer switch must not be on silent. DriveDeck asks iOS to mix its sounds with other audio and never claims Now Playing, so Spotify and the steering-wheel buttons keep working, but how the iPhone and the car mix the two on a real drive is not something an app can guarantee. Loud synthetic exhaust sounds can disturb people outside the car: use them where that is appropriate."
       },
       {
         "icon": "video",
@@ -473,7 +480,7 @@
       {
         "icon": "gauge",
         "title": "Open from the Home Screen",
-        "body": "Always launch DriveDeck from its icon so it runs without browser bars. Allow location “While Using the App”."
+        "body": "Always launch DriveDeck from its icon so it runs without browser bars. Allow location â€œWhile Using the Appâ€."
       }
     ],
     "tipsTitle": "Tips for the car",

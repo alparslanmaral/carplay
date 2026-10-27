@@ -1,4 +1,4 @@
-﻿import { defineConfig } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 const DEV_PORT = 5173;
 const PREVIEW_PORT = 4173;

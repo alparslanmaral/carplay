@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 /** Allowed values for every enumerated setting. Single source of truth for types, validation and the menu. */
@@ -45,6 +45,7 @@ export const OPTIONS = {
   sportTurbo: ['classic', 'whoosh', 'flutter', 'twin', 'race', 'subtle'],
   sportExhaust: ['popcorn', 'burble', 'bangs', 'crackle'],
   sportPopTrigger: ['acceleration', 'liftoff', 'both'],
+  sportInput: ['gps', 'motion'],
 } as const;
 
 type Opt<K extends keyof typeof OPTIONS> = (typeof OPTIONS)[K][number];
@@ -185,6 +186,8 @@ export interface Settings {
   sportIdle: boolean;
   sportGearbox: boolean;
   sportPreciseGps: boolean;
+  /** What drives the sound: GPS speed alone, or the accelerometer (fast) corrected by GPS. */
+  sportInput: Opt<'sportInput'>;
 
   // Driving and safety
   keepAwake: boolean;
@@ -308,6 +311,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sportIdle: true,
   sportGearbox: true,
   sportPreciseGps: true,
+  sportInput: 'gps',
 
   keepAwake: true,
   dimEnabled: false,

@@ -6,6 +6,7 @@ type Dev = {
     sport: {
       getState(): {
         active: boolean;
+        throttle: number;
         locked: boolean;
         demo: boolean;
         rpm: number;
@@ -96,6 +97,134 @@ test.describe('sport mode', () => {
   });
 });
 
+/**
+ * A phone lying flat with its x axis pointing forward: pull / coast / brake cycles of 5 s. Sends 60 Hz
+ * `devicemotion` events and one GPS fix per second, the way a phone would deliver them.
+ */
+async function driveCycles(page: Page, seconds: number): Promise<void> {
+  await page.evaluate(async (secs) => {
+    const dd = (window as unknown as Dev).__dd;
+    let speed = 0;
+    const t0 = performance.now();
+    let last = t0;
+    let nextFix = 0;
+    const accelAt = (t: number) => {
+      const p = t % 5;
+      return p < 2.5 ? 3 : p < 3.2 ? 0 : 3.2 <= p && p < 5 ? -3 : 0;
+    };
+    await new Promise<void>((resolve) => {
+      const id = setInterval(() => {
+        const now = performance.now();
+        const t = (now - t0) / 1000;
+        const dt = (now - last) / 1000;
+        last = now;
+        const a = speed <= 0 && accelAt(t) < 0 ? 0 : accelAt(t);
+        speed = Math.max(0, speed + a * dt);
+        window.dispatchEvent(
+          new DeviceMotionEvent('devicemotion', {
+            acceleration: { x: a, y: 0, z: 0 },
+            accelerationIncludingGravity: { x: a, y: 0, z: 9.81 },
+            interval: 16,
+          }),
+        );
+        if (t >= nextFix) {
+          nextFix += 1;
+          dd.geo.getState().ingest({
+            coords: { latitude: 41, longitude: 29, accuracy: 5, speed, heading: 0 },
+            timestamp: Date.now(),
+          });
+        }
+        if (t > secs) {
+          clearInterval(id);
+          resolve();
+        }
+      }, 16);
+    });
+  }, seconds);
+}
+
+/** A firm pull reported by the accelerometer only, for `ms` milliseconds, with no GPS fix in between. */
+async function pullWithoutGps(page: Page, ms: number): Promise<void> {
+  await page.evaluate(async (duration) => {
+    const end = performance.now() + duration;
+    await new Promise<void>((resolve) => {
+      const id = setInterval(() => {
+        window.dispatchEvent(
+          new DeviceMotionEvent('devicemotion', {
+            acceleration: { x: 5, y: 0, z: 0 },
+            accelerationIncludingGravity: { x: 5, y: 0, z: 9.81 },
+            interval: 16,
+          }),
+        );
+        if (performance.now() > end) {
+          clearInterval(id);
+          resolve();
+        }
+      }, 16);
+    });
+  }, ms);
+}
+
+const throttle = (page: Page) =>
+  page.evaluate(() => (window as unknown as Dev).__dd.sport.getState().throttle);
+
+test.describe('accelerometer input', () => {
+  test.use({ permissions: ['geolocation', 'accelerometer', 'gyroscope', 'magnetometer'] });
+
+  test('learns the mount from a few pulls and then reacts before the next GPS fix', async ({ page }) => {
+    await seed(page, { sportInput: 'motion' });
+    await mockExternal(page);
+    await page.goto('/?screen=sport');
+    await waitForApp(page);
+    await page.getByRole('button', { name: /Sport mode off/ }).click();
+    await expect.poll(async () => (await sportState(page)).active).toBe(true);
+
+    await driveCycles(page, 11);
+    await expect(page.locator('[data-motion="ready"]')).toBeVisible();
+
+    // let the car settle, then pull hard for 0.7 s: shorter than the 1 s between GPS fixes
+    await page.waitForTimeout(1800);
+    expect(await throttle(page)).toBeLessThan(0.4);
+    await pullWithoutGps(page, 700);
+    await expect.poll(() => throttle(page), { timeout: 600 }).toBeGreaterThan(0.5);
+  });
+
+  test('with GPS only the same pull is not noticed until a fix arrives', async ({ page }) => {
+    await seed(page, { sportInput: 'gps' });
+    await mockExternal(page);
+    await page.goto('/?screen=sport');
+    await waitForApp(page);
+    await page.getByRole('button', { name: /Sport mode off/ }).click();
+    await expect.poll(async () => (await sportState(page)).active).toBe(true);
+    await expect(page.locator('[data-motion]')).toHaveCount(0);
+    await pullWithoutGps(page, 700);
+    expect(await throttle(page)).toBeLessThan(0.4);
+  });
+
+  test('switching the source is a setting, and an unusable sensor falls back to GPS', async ({ page }) => {
+    await seed(page, { sportInput: 'motion' });
+    await mockExternal(page);
+    await page.goto('/?screen=sport');
+    await waitForApp(page);
+    await expect(page.locator('[data-item="sportInput"]')).toBeVisible();
+    await page.getByRole('button', { name: /Sport mode off/ }).click();
+    // no motion events are ever sent: after a few seconds the screen says GPS alone is used
+    await expect(page.locator('[data-motion="unsupported"]')).toBeVisible({ timeout: 6000 });
+    await expect(page.locator('[data-motion="unsupported"]')).toContainText('GPS alone');
+  });
+});
+
+test.describe('accelerometer permission refused', () => {
+  test('says so and keeps working on GPS alone', async ({ page }) => {
+    await seed(page, { sportInput: 'motion' });
+    await mockExternal(page);
+    await page.goto('/?screen=sport');
+    await waitForApp(page);
+    await page.getByRole('button', { name: /Sport mode off/ }).click();
+    await expect(page.locator('[data-motion="denied"]')).toContainText('GPS alone is used');
+    await expect.poll(async () => (await sportState(page)).active).toBe(true);
+  });
+});
 test.describe('dashboard navigation view', () => {
   test('shows the route, the next turn and the arrival time while a trip is running', async ({ page }) => {
     await seed(page, {

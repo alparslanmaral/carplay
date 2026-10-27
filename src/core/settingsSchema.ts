@@ -1,4 +1,4 @@
-import { ENGINE_LABELS, EXHAUST_LABELS, POP_TRIGGER_LABELS, TURBO_LABELS } from '../services/sport/profiles';
+﻿import { ENGINE_LABELS, EXHAUST_LABELS, POP_TRIGGER_LABELS, TURBO_LABELS } from '../services/sport/profiles';
 import type { Features } from './features';
 import { OPTIONS, type Settings } from './settings';
 
@@ -506,6 +506,13 @@ export const SECTIONS: SettingSection[] = [
         opts('sportPopTrigger', POP_TRIGGER_LABELS),
         'Hard acceleration is detected from the change in GPS speed. Gear changes at full throttle always bang.',
         { visibleIf: (s) => s.sportExhaustOn },
+      ),
+      select(
+        'sportInput',
+        'Speed source',
+        opts('sportInput', { gps: 'GPS only', motion: 'Accelerometer + GPS (faster)' }),
+        'GPS reports speed about once a second, so sounds follow hard acceleration up to a second late. The accelerometer reacts within a fraction of a second; GPS keeps it accurate. iOS asks for motion access, and it needs a few firm accelerations in a straight line to learn how the phone sits in its mount.',
+        { keywords: 'latency delay fast accelerometer motion sensor gps response' },
       ),
       slider('sportVolume', 'Sport volume', 0, 100, 5, 'percent', 'Master volume of all sport sounds.'),
       slider('sportEngineVolume', 'Engine volume', 0, 100, 5, 'percent', undefined, {
