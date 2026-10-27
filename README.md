@@ -1,4 +1,4 @@
-# DriveDeck
+﻿# DriveDeck
 
 An installable in-car dashboard for your iPhone, built as a Progressive Web App. Mount the phone on the dash, add it to the Home Screen, and get a dark, glanceable, big-button interface: a paged Home screen, a dashboard with map / speed / weather / Now Playing widgets, a Spotify remote, a YouTube player, and one-tap hand-off to Apple Maps, Google Maps or Waze.
 
@@ -126,7 +126,7 @@ DriveDeck is a static site: build it and host the `dist` folder over **HTTPS** (
 
 1. Repository **Settings > Pages > Source: GitHub Actions**.
 2. **Settings > Secrets and variables > Actions > Variables**: add `VITE_SPOTIFY_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID`.
-3. Push to `main`; [`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds and deploys. Your URL is `https://<user>.github.io/<repo>/`; use exactly that (with the trailing slash) as the Spotify redirect URI, and `https://<user>.github.io` as the Google origin.
+3. Push to `main`; [`.github/workflows/static.yml`](.github/workflows/static.yml) builds and deploys. Your URL is `https://<user>.github.io/<repo>/`; use exactly that (with the trailing slash) as the Spotify redirect URI, and `https://<user>.github.io` as the Google origin.
 4. GitHub Pages ignores `_headers`; that is fine, the app still works (updates may take a little longer to appear because of CDN caching).
 
 ## Install on iPhone
