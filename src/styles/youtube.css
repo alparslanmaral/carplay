@@ -17,7 +17,7 @@
 }
 .ythost__bar {
   flex: none;
-  height: 52px;
+  height: var(--tt);
   display: flex;
   align-items: center;
   gap: 0.25rem;

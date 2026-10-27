@@ -1,8 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
-// E2E_PREVIEW=1 runs against the production build (service worker, minified bundle) instead of the dev server.
-const PREVIEW = !!process.env.E2E_PREVIEW;
-const PORT = PREVIEW ? 4173 : 5173;
+const DEV_PORT = 5173;
+const PREVIEW_PORT = 4173;
 
 export default defineConfig({
   testDir: 'e2e',
@@ -12,10 +11,11 @@ export default defineConfig({
   reporter: [['list']],
   outputDir: 'test-results',
   use: {
-    baseURL: `http://127.0.0.1:${PORT}`,
+    baseURL: `http://127.0.0.1:${DEV_PORT}`,
     hasTouch: true,
     isMobile: true,
-    deviceScaleFactor: 2,
+    // SHOT_SCALE=1 keeps committed screenshots small
+    deviceScaleFactor: Number(process.env.SHOT_SCALE ?? 2),
     colorScheme: 'dark',
     locale: 'en-US',
     timezoneId: 'Europe/Istanbul',
@@ -24,13 +24,31 @@ export default defineConfig({
     permissions: ['geolocation'],
   },
   projects: [
-    { name: 'smoke', testMatch: /smoke\.spec\.ts/, use: { viewport: { width: 390, height: 844 } } },
+    {
+      name: 'smoke',
+      testMatch: /(smoke|touch-targets)\.spec\.ts/,
+      use: { viewport: { width: 390, height: 844 } },
+    },
     { name: 'shots', testMatch: /screenshots\.spec\.ts/ },
+    {
+      // Runs against the production build (minified bundle + service worker): `npm run e2e:pwa`
+      name: 'pwa',
+      testMatch: /pwa\.spec\.ts/,
+      use: { baseURL: `http://127.0.0.1:${PREVIEW_PORT}`, viewport: { width: 390, height: 844 } },
+    },
   ],
-  webServer: {
-    command: PREVIEW ? 'npm run build && npm run preview' : 'npm run dev',
-    url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      command: 'npm run dev',
+      url: `http://127.0.0.1:${DEV_PORT}`,
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
+    {
+      command: 'npm run build && npm run preview',
+      url: `http://127.0.0.1:${PREVIEW_PORT}`,
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+  ],
 });

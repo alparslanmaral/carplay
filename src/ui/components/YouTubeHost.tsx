@@ -50,7 +50,7 @@ interface Rect {
 export const MINI_W = 356;
 export const MINI_H = 200;
 /** Control strip above the mini player: the buttons never cover the video itself. */
-export const MINI_BAR = 52;
+export const MINI_BAR = 64;
 
 /** Bottom-right corner of the main area; the video part is never smaller than the 200 px the player API requires. */
 export function miniRect(main: Pick<DOMRect, 'left' | 'top' | 'right' | 'bottom' | 'width'>): Rect {

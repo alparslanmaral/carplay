@@ -150,7 +150,7 @@
 
 /* recents + quick */
 .row--tight {
-  min-height: calc(var(--tt) * 0.9);
+  min-height: var(--tt);
   padding: 0.25rem 0.625rem;
   background: transparent;
   border-color: transparent;

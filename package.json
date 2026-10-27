@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "e2e:pwa": "playwright test --project=pwa",
     "shots": "playwright test --project=shots",
     "icons": "node scripts/gen-icons.mjs"
   },

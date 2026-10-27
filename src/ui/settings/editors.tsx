@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { allApps, appLabel, moveItem, resolveHomeApps, type AppDef } from '../../core/apps';
 import { downscaleToDataUrl } from '../../core/image';
@@ -27,7 +27,7 @@ export function AccentEditor() {
             aria-checked={accent.toLowerCase() === c}
             aria-label={c}
             className="swatch"
-            style={{ background: c }}
+            style={{ '--sw': c } as CSSProperties}
             onClick={() => set('accent', c)}
           />
         ))}
@@ -35,7 +35,7 @@ export function AccentEditor() {
           className="swatch swatch--custom"
           aria-checked={!isPreset}
           role="radio"
-          style={{ background: isPreset ? undefined : accent }}
+          style={isPreset ? undefined : ({ '--sw': accent } as CSSProperties)}
         >
           <Icon name="palette" size="1.1rem" />
           <input
@@ -96,7 +96,7 @@ export function WallpaperEditor() {
               aria-checked={gradient === i}
               aria-label={g.id}
               className="swatch swatch--wide"
-              style={{ background: gradientCss(i, 'dark') }}
+              style={{ '--sw': gradientCss(i, 'dark') } as CSSProperties}
               onClick={() => set('wallpaperGradient', i)}
             />
           ))}

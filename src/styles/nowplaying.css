@@ -117,8 +117,9 @@
   gap: 0.375rem;
   margin-bottom: 0.375rem;
 }
-.np__badges a.chip {
+.np__link {
   text-decoration: none;
+  color: var(--accent);
 }
 .np__title {
   font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
@@ -144,8 +145,13 @@
 }
 @media (orientation: landscape) and (max-height: 460px) {
   .np__album,
-  .np__badges .chip:nth-child(n + 3) {
+  .np__badges .chip--device,
+  .np__linktext {
     display: none;
+  }
+  .np__link {
+    padding: 0;
+    width: var(--tt);
   }
   .np__title {
     -webkit-line-clamp: 1;

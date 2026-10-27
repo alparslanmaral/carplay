@@ -280,6 +280,18 @@ export const SETTINGS_VERSION = 1;
 const STORAGE_KEY = 'dd.settings';
 
 /**
+ * Free-text settings that end up in CSS or are parsed as times/codes must have the right shape, otherwise a
+ * hand-edited or malicious import could inject CSS (e.g. a remote wallpaper URL used for tracking).
+ */
+export const STRING_PATTERNS: Partial<Record<keyof Settings, RegExp>> = {
+  accent: /^#[0-9a-fA-F]{6}$/,
+  wallpaperImage: /^(data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+)?$/,
+  dimStart: /^([01]\d|2[0-3]):[0-5]\d$/,
+  dimEnd: /^([01]\d|2[0-3]):[0-5]\d$/,
+  regionBias: /^([A-Za-z]{2})?$/,
+};
+
+/**
  * Keep only keys that exist in the defaults and have a compatible type / allowed value.
  * Used for imports and for migrating stored data, so a hand-edited or old file can never poison the store.
  */
@@ -301,6 +313,8 @@ export function sanitizeSettings(input: unknown): Partial<Settings> {
       if (typeof value !== 'string') continue;
       const allowed = (OPTIONS as Record<string, readonly string[]>)[key];
       if (allowed && !allowed.includes(value)) continue;
+      const pattern = STRING_PATTERNS[key];
+      if (pattern && !pattern.test(value)) continue;
       out[key] = value;
     }
   }

@@ -155,15 +155,10 @@ export default function NowPlaying() {
               {controller.label}
             </span>
             {deviceName && (
-              <span className="chip">
+              <span className="chip chip--device">
                 <Icon name="smartphone" size="1em" />
                 {deviceName}
               </span>
-            )}
-            {source === 'spotify' && track.webUrl && (
-              <a className="chip" data-tone="accent" href={track.webUrl} target="_blank" rel="noreferrer">
-                {t('nowplaying.openInSpotify')}
-              </a>
             )}
           </div>
           <h1 className="np__title ellipsis-2">{track.title}</h1>
@@ -256,6 +251,19 @@ export default function NowPlaying() {
             >
               <Icon name="queue" />
             </button>
+          )}
+          {/* Spotify's design guidelines ask for a link back to the content in Spotify */}
+          {source === 'spotify' && track.webUrl && (
+            <a
+              className="btn btn--ghost np__link"
+              href={track.webUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t('nowplaying.openInSpotify')}
+            >
+              <Icon name="external" size="1.2em" />
+              <span className="np__linktext">{t('nowplaying.openInSpotify')}</span>
+            </a>
           )}
           <VolumeRow />
         </div>

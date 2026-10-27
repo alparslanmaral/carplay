@@ -17,6 +17,24 @@ Static hosting, no backend. Vite + React + TypeScript (strict), Zustand, MapLibr
 
 After each milestone: `npm run build`, `npm run lint`, `npm test`, Playwright screenshots at 390x844 and 844x390 (`npm run shots`), then `git commit`.
 
+**Status: M1-M7 complete.** Each milestone is one commit (`git log --oneline`). Per-milestone screenshots are in the git history (`docs/screenshots/M1`..`M6`); the final set is `docs/screenshots/final`.
+
+## Decisions added while building
+
+15. **Spotify API changes (Feb 2026).** Player endpoints are unchanged, but development-mode apps lost the per-type save/contains routes (now `/me/library`, by URI) and `GET /me` no longer returns `product`. The client tries the new routes and falls back to the legacy ones on 400/404/405, and Premium is detected from a `403 PREMIUM_REQUIRED` on the first command (and from `product` when present).
+16. **Nominatim is submit-only.** Its usage policy forbids autocomplete, so only Photon and Google Places search while typing; Nominatim searches on Enter, at most 1 request per second.
+17. **Media Session is taken lazily.** A source that owns it (YouTube) only registers handlers once it has a track, and releases them when the player is closed. Merely being "last used source" never steals the keys.
+18. **One persistent YouTube host.** The IFrame player lives in a single fixed element that follows a slot on the YouTube / Now Playing screens and becomes a mini player (356x200 video + control strip) elsewhere, so it stays visible and unmodified. The "Parked-only" overlay is a deliberate safety exception to "always visible".
+19. **Touch targets are real boxes.** Every interactive element is at least `--tt` (64 px, up to 96, scaled by UI scale) in both dimensions - toggles, swatches, segmented items and the home-edit badge draw their small visuals inside a 64 px element. An e2e audit enforces this on every screen in both orientations.
+20. **Settings are validated on import.** Free-text settings that reach CSS or parsers (accent, wallpaper data URL, times, region code) must match a strict pattern, so an imported file cannot inject CSS or remote URLs.
+21. **Simplified mode** = Home with only Maps, Spotify, YouTube, Now Playing and Settings in 1.5x tiles, no edit mode, and a dashboard reduced to map / Now Playing / speed.
+22. **Dev-only hooks.** `window.__dd` (stores, for e2e) exists only in the dev server; `?demo=1`, `?screen=` and `?skipOnboarding=1` are documented conveniences.
+23. **Screenshots** were taken with Chromium and stubbed network (deterministic tiles, fake IFrame API, mocked Spotify/YouTube/Open-Meteo/Photon). They show layout, not real content or real iOS rendering.
+
+## Not verified on real hardware
+
+No iPhone, car or live Spotify / Google / Apple / Google-Maps credentials were available during development. Verified in automated tests: logic, layouts, the offline shell and manifest. **Needs a real-device check:** Spotify and Google sign-in inside the installed app, steering-wheel keys in both modes, the Wake Lock in standalone mode, Google Maps / MapKit adapters, and the YouTube IFrame player on iOS.
+
 ## Decisions (made without asking, as requested)
 
 1. **Name / branding.** App is "DriveDeck". No Apple marks, no "CarPlay" in UI or app name. All icons are original inline SVG glyphs (2px round-cap stroke style, one `Icon` component). System font stack only.

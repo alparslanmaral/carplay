@@ -56,6 +56,28 @@ describe('sanitizeSettings', () => {
     expect(clean).toEqual({ accent: '#123456', seekStep: 20, dockItems: ['maps'] });
   });
 
+  it('rejects strings that could inject CSS or break parsing', () => {
+    const clean = sanitizeSettings({
+      accent: 'red; background: url(https://evil.example/x)',
+      wallpaperImage: 'https://evil.example/track.png',
+      dimStart: '25:99',
+      dimEnd: '06:30',
+      regionBias: 'Turkey',
+    });
+    expect(clean).toEqual({ dimEnd: '06:30' });
+    expect(sanitizeSettings({ accent: '#FFaa00', regionBias: 'tr', wallpaperImage: '' })).toEqual({
+      accent: '#FFaa00',
+      regionBias: 'tr',
+      wallpaperImage: '',
+    });
+    expect(
+      sanitizeSettings({ wallpaperImage: 'data:image/jpeg;base64,/9j/4AAQSkZJRg==' }).wallpaperImage,
+    ).toBeTruthy();
+    expect(
+      sanitizeSettings({ wallpaperImage: 'data:text/html;base64,PHNjcmlwdD4=' }).wallpaperImage,
+    ).toBeUndefined();
+  });
+
   it('rejects non-objects', () => {
     expect(sanitizeSettings(null)).toEqual({});
     expect(sanitizeSettings([1, 2])).toEqual({});

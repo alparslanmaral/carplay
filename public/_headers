@@ -1,0 +1,18 @@
+# Honoured by Cloudflare Pages and Netlify (GitHub Pages ignores this file; see README).
+# The service worker, the HTML shell and the manifest must never be served stale or updates will not arrive.
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  # YouTube embeds and OSM-based tile servers need a referrer; send the origin only to other sites.
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=()
